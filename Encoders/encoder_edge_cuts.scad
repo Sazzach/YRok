@@ -15,8 +15,10 @@ drill_d = 0.068 * 2.54;
 $fn = 100;
 
 //tabs();
-edge_cuts();
+encoder_edge_cuts();
 //motor_outline();
+
+function encoder_board_th() = 1.6;
 
 module motor_outline() {
 	intersection() {
@@ -30,7 +32,7 @@ module tabs() {
 	square([1, 16], center = true);
 }
 
-module edge_cuts() {
+module encoder_edge_cuts() {
 	difference() {
 		outline();
 		center_hole();

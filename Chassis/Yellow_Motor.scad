@@ -1,5 +1,5 @@
-use <../BOSL/transforms.scad>
-use <../BOSL/shapes.scad>
+use <BOSL/transforms.scad>
+use <BOSL/shapes.scad>
 include <Global_Defs.scad>
 
 ////////////////////////////////////////
@@ -27,7 +27,7 @@ tab_hole_d = 2.50;
 axle_d = 5.48;
 axle_flat_w = 3.75;
 axle_len = 9.53;
-axle_base = 1.9;
+axle_base_len = 1.9;
 axle_offset = 10.75;
 axle_hole_d = 1.81;
 axle_hole_depth = 5; // estimate
@@ -63,11 +63,16 @@ function ym_height() = body_height;
 function ym_length() = motor_end_offset;
 
 function ym_screw_hole_d() = body_hole_d;
+function ym_screw_hole_offset() = body_hole_offset;
+function ym_screw_hole_spacing() = body_hole_spacing;
 
 function ym_axle_pos() = [axle_offset, 0, body_height/2];
 function ym_axle_d() = axle_d;
 function ym_axle_w() = axle_flat_w;
 function ym_axle_len() = 9.53;
+function ym_axle_base_len() = axle_base_len;
+
+function ym_motor_end_th() = motor_end_th;
 
 function ym_end_axle_pos() = [end_axle_offset, holder_flat_w/2, ym_height()/2];
 function ym_end_axle_d() = end_axle_d;
@@ -130,10 +135,10 @@ module yellow_motor() {
 	up(body_width/2)
 	difference() {
 		union() {
-			cylinder(h = axle_base, d = axle_d, $fn = small_rad_frags);
+			cylinder(h = axle_base_len, d = axle_d, $fn = small_rad_frags);
 
-			up(axle_base)
-			sq_cylinder(axle_len - axle_base, axle_d, axle_flat_w, $fn = small_rad_frags);
+			up(axle_base_len)
+			sq_cylinder(axle_len - axle_base_len, axle_d, axle_flat_w, $fn = small_rad_frags);
 		}
 
 		up(axle_len + eps)

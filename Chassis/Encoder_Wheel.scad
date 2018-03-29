@@ -1,4 +1,4 @@
-use <../BOSL/transforms.scad>
+use <BOSL/transforms.scad>
 
 wheel_d = 20;
 wheel_th = 2;

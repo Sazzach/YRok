@@ -1,15 +1,17 @@
-use <../BOSL/transforms.scad>
-use <../BOSL/shapes.scad>
-use <../BOSL/masks.scad>
+use <BOSL/transforms.scad>
+use <BOSL/shapes.scad>
+use <BOSL/masks.scad>
 
 use <Yellow_Motor.scad>
 include <Global_Defs.scad>
+
+use <../Encoders/encoder_edge_cuts.scad>
 
 function encoder_wheel_d() = 20;
 //function encoder_wheel_d() = ym_width();
 function encoder_wheel_th() = 2;
 
-segments = 4;
+segments = 16;
 fancy_th = 0.05;
 
 //encoder_wheel();
@@ -19,14 +21,19 @@ encoder_assembly();
 module encoder_assembly() {
 	yellow_motor();
 
-	xmove(2)
 	translate(ym_end_axle_pos())
 	yrot(90)
 	union() {
-		encoder_wheel();
+		zmove(5) {
+			encoder_wheel();
 
-		up(encoder_wheel_th())
-		fancy_wheel();
+			down(fancy_th)
+			fancy_wheel();
+		}
+
+		zmove(-ym_motor_end_th())
+		zrot(90)
+		sensor_mount();
 	}
 }
 
@@ -43,7 +50,8 @@ module encoder_wheel() {
 }
 
 module sensor_mount() {
-	
+	linear_extrude(encoder_board_th())
+	encoder_edge_cuts();
 }
 
 module fancy_wheel() {
