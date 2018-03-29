@@ -1,0 +1,586 @@
+EESchema Schematic File Version 2
+LIBS:pspice
+LIBS:power
+LIBS:Video
+LIBS:Valve
+LIBS:Triac_Thyristor
+LIBS:Transistor_IGBT
+LIBS:Transistor_FET
+LIBS:Transistor_BJT
+LIBS:Transistor_Array
+LIBS:Transformer
+LIBS:Timer_RTC
+LIBS:Timer
+LIBS:Switch
+LIBS:Sensor_Voltage
+LIBS:Sensor_Touch
+LIBS:Sensor_Temperature
+LIBS:Sensor_Proximity
+LIBS:Sensor_Pressure
+LIBS:Sensor_Optical
+LIBS:Sensor_MultiFunction
+LIBS:Sensor_Motion
+LIBS:Sensor_Magnetic
+LIBS:Sensor_Humidity
+LIBS:Sensor_Gas
+LIBS:Sensor_Current
+LIBS:Sensor_Audio
+LIBS:Sensor
+LIBS:Relay_SolidState
+LIBS:Relay
+LIBS:Regulator_Switching
+LIBS:Regulator_SwitchedCapacitor
+LIBS:Regulator_Linear
+LIBS:Regulator_Current
+LIBS:Regulator_Controller
+LIBS:Reference_Voltage
+LIBS:Reference_Current
+LIBS:RF_ZigBee
+LIBS:RF_WiFi
+LIBS:RF_RFID
+LIBS:RF_Module
+LIBS:RF_Mixer
+LIBS:RF_GPS
+LIBS:RF_Bluetooth
+LIBS:RF_AM_FM
+LIBS:RF
+LIBS:Power_Supervisor
+LIBS:Power_Protection
+LIBS:Power_Management
+LIBS:Potentiometer_Digital
+LIBS:Oscillator
+LIBS:Motor
+LIBS:Memory_UniqueID
+LIBS:Memory_ROM
+LIBS:Memory_RAM
+LIBS:Memory_NVRAM
+LIBS:Memory_Flash
+LIBS:Memory_EEPROM
+LIBS:Memory_Controller
+LIBS:Mechanical
+LIBS:MCU_Texas_MSP430
+LIBS:MCU_Texas
+LIBS:MCU_SiliconLabs
+LIBS:MCU_SiFive
+LIBS:MCU_ST_STM8
+LIBS:MCU_ST_STM32
+LIBS:MCU_Parallax
+LIBS:MCU_NXP_S08
+LIBS:MCU_NXP_LPC
+LIBS:MCU_NXP_Kinetis
+LIBS:MCU_NXP_HC11
+LIBS:MCU_Module
+LIBS:MCU_Microchip_SAML
+LIBS:MCU_Microchip_SAME
+LIBS:MCU_Microchip_PIC32
+LIBS:MCU_Microchip_PIC24
+LIBS:MCU_Microchip_PIC18
+LIBS:MCU_Microchip_PIC16
+LIBS:MCU_Microchip_PIC12
+LIBS:MCU_Microchip_PIC10
+LIBS:MCU_Intel
+LIBS:MCU_Infineon
+LIBS:MCU_Cypress
+LIBS:MCU_Atmel_AVR
+LIBS:MCU_Atmel_ATTINY
+LIBS:MCU_Atmel_ATMEGA
+LIBS:MCU_Atmel_8051
+LIBS:MCU_AnalogDevices
+LIBS:Logic_TTL_IEEE
+LIBS:Logic_Programmable
+LIBS:Logic_LevelTranslator
+LIBS:Logic_CMOS_IEEE
+LIBS:Logic_CMOS_4000
+LIBS:Logic_74xx
+LIBS:Logic_74xgxx
+LIBS:LED
+LIBS:Jumper
+LIBS:Isolator_Analog
+LIBS:Isolator
+LIBS:Interface_USB
+LIBS:Interface_UART
+LIBS:Interface_Telecom
+LIBS:Interface_Optical
+LIBS:Interface_LineDriver
+LIBS:Interface_HID
+LIBS:Interface_Expansion
+LIBS:Interface_Ethernet
+LIBS:Interface_CurrentLoop
+LIBS:Interface_CAN_LIN
+LIBS:Interface
+LIBS:Graphic
+LIBS:FPGA_Xilinx_Virtex7
+LIBS:FPGA_Xilinx_Virtex6
+LIBS:FPGA_Xilinx_Virtex5
+LIBS:FPGA_Xilinx_Spartan6
+LIBS:FPGA_Xilinx_Kintex7
+LIBS:FPGA_Xilinx_Artix7
+LIBS:FPGA_Xilinx
+LIBS:FPGA_Actel
+LIBS:Driver_Relay
+LIBS:Driver_Motor
+LIBS:Driver_LED
+LIBS:Driver_FET
+LIBS:Driver_Display
+LIBS:Display_Graphic
+LIBS:Display_Character
+LIBS:Diode_Laser
+LIBS:Diode_Bridge
+LIBS:Diode
+LIBS:Device
+LIBS:DSP_Texas
+LIBS:DSP_Microchip_DSPIC33
+LIBS:DSP_Freescale
+LIBS:Converter_DCDC
+LIBS:Connector_Specialized
+LIBS:Connector_Generic_Shielded
+LIBS:Connector_Generic
+LIBS:Comparator
+LIBS:CPU
+LIBS:CPLD_Xilinx
+LIBS:CPLD_Altera
+LIBS:Battery_Management
+LIBS:Audio
+LIBS:Analog_Switch
+LIBS:Analog_DAC
+LIBS:Analog_ADC
+LIBS:Analog
+LIBS:Amplifier_Video
+LIBS:Amplifier_Operational
+LIBS:Amplifier_Instrumentation
+LIBS:Amplifier_Difference
+LIBS:Amplifier_Current
+LIBS:Amplifier_Buffer
+LIBS:Amplifier_Audio
+LIBS:Control_Board
+LIBS:Control_Board-cache
+EELAYER 25 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 3 6
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L LM339 U5
+U 1 1 5A83DC6A
+P 5300 2450
+F 0 "U5" H 5300 2650 50  0000 L CNN
+F 1 "LM339" H 5300 2250 50  0000 L CNN
+F 2 "Housings_SOIC:SOIC-14_3.9x8.7mm_Pitch1.27mm" H 5250 2550 50  0001 C CNN
+F 3 "" H 5350 2650 50  0001 C CNN
+	1    5300 2450
+	1    0    0    -1  
+$EndComp
+$Comp
+L LM339 U5
+U 2 1 5A83DCDF
+P 5300 3550
+F 0 "U5" H 5300 3750 50  0000 L CNN
+F 1 "LM339" H 5300 3350 50  0000 L CNN
+F 2 "Housings_SOIC:SOIC-14_3.9x8.7mm_Pitch1.27mm" H 5250 3650 50  0001 C CNN
+F 3 "" H 5350 3750 50  0001 C CNN
+	2    5300 3550
+	1    0    0    -1  
+$EndComp
+$Comp
+L LM339 U5
+U 3 1 5A83DD26
+P 5300 4650
+F 0 "U5" H 5300 4850 50  0000 L CNN
+F 1 "LM339" H 5300 4450 50  0000 L CNN
+F 2 "Housings_SOIC:SOIC-14_3.9x8.7mm_Pitch1.27mm" H 5250 4750 50  0001 C CNN
+F 3 "" H 5350 4850 50  0001 C CNN
+	3    5300 4650
+	1    0    0    -1  
+$EndComp
+$Comp
+L LM339 U5
+U 4 1 5A83DD6B
+P 5300 5750
+F 0 "U5" H 5300 5950 50  0000 L CNN
+F 1 "LM339" H 5300 5550 50  0000 L CNN
+F 2 "Housings_SOIC:SOIC-14_3.9x8.7mm_Pitch1.27mm" H 5250 5850 50  0001 C CNN
+F 3 "" H 5350 5950 50  0001 C CNN
+	4    5300 5750
+	1    0    0    -1  
+$EndComp
+$Comp
+L +5V #PWR036
+U 1 1 5A83EAC1
+P 5200 1550
+F 0 "#PWR036" H 5200 1400 50  0001 C CNN
+F 1 "+5V" H 5200 1690 50  0000 C CNN
+F 2 "" H 5200 1550 50  0001 C CNN
+F 3 "" H 5200 1550 50  0001 C CNN
+	1    5200 1550
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR037
+U 1 1 5A83EB7D
+P 5200 2750
+F 0 "#PWR037" H 5200 2500 50  0001 C CNN
+F 1 "GND" H 5200 2600 50  0000 C CNN
+F 2 "" H 5200 2750 50  0001 C CNN
+F 3 "" H 5200 2750 50  0001 C CNN
+	1    5200 2750
+	1    0    0    -1  
+$EndComp
+$Comp
+L POT RV1
+U 1 1 5A83ECF9
+P 4900 6400
+F 0 "RV1" V 4725 6400 50  0000 C CNN
+F 1 "POT" V 4800 6400 50  0000 C CNN
+F 2 "Control_Board:Pot_TC33X_2" H 4900 6400 50  0001 C CNN
+F 3 "" H 4900 6400 50  0001 C CNN
+	1    4900 6400
+	0    -1   -1   0   
+$EndComp
+$Comp
+L +5V #PWR038
+U 1 1 5A83EF38
+P 5200 3250
+F 0 "#PWR038" H 5200 3100 50  0001 C CNN
+F 1 "+5V" H 5200 3390 50  0000 C CNN
+F 2 "" H 5200 3250 50  0001 C CNN
+F 3 "" H 5200 3250 50  0001 C CNN
+	1    5200 3250
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR039
+U 1 1 5A83F29B
+P 5200 3850
+F 0 "#PWR039" H 5200 3600 50  0001 C CNN
+F 1 "GND" H 5200 3700 50  0000 C CNN
+F 2 "" H 5200 3850 50  0001 C CNN
+F 3 "" H 5200 3850 50  0001 C CNN
+	1    5200 3850
+	1    0    0    -1  
+$EndComp
+$Comp
+L +5V #PWR040
+U 1 1 5A83F4BC
+P 5200 4350
+F 0 "#PWR040" H 5200 4200 50  0001 C CNN
+F 1 "+5V" H 5200 4490 50  0000 C CNN
+F 2 "" H 5200 4350 50  0001 C CNN
+F 3 "" H 5200 4350 50  0001 C CNN
+	1    5200 4350
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR041
+U 1 1 5A83F4C2
+P 5200 4950
+F 0 "#PWR041" H 5200 4700 50  0001 C CNN
+F 1 "GND" H 5200 4800 50  0000 C CNN
+F 2 "" H 5200 4950 50  0001 C CNN
+F 3 "" H 5200 4950 50  0001 C CNN
+	1    5200 4950
+	1    0    0    -1  
+$EndComp
+$Comp
+L +5V #PWR042
+U 1 1 5A83F84E
+P 5200 5450
+F 0 "#PWR042" H 5200 5300 50  0001 C CNN
+F 1 "+5V" H 5200 5590 50  0000 C CNN
+F 2 "" H 5200 5450 50  0001 C CNN
+F 3 "" H 5200 5450 50  0001 C CNN
+	1    5200 5450
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR043
+U 1 1 5A83F854
+P 5200 6050
+F 0 "#PWR043" H 5200 5800 50  0001 C CNN
+F 1 "GND" H 5200 5900 50  0000 C CNN
+F 2 "" H 5200 6050 50  0001 C CNN
+F 3 "" H 5200 6050 50  0001 C CNN
+	1    5200 6050
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR044
+U 1 1 5A840390
+P 5200 6550
+F 0 "#PWR044" H 5200 6300 50  0001 C CNN
+F 1 "GND" H 5200 6400 50  0000 C CNN
+F 2 "" H 5200 6550 50  0001 C CNN
+F 3 "" H 5200 6550 50  0001 C CNN
+	1    5200 6550
+	1    0    0    -1  
+$EndComp
+$Comp
+L +3.3V #PWR045
+U 1 1 5A8403E7
+P 4600 6250
+F 0 "#PWR045" H 4600 6100 50  0001 C CNN
+F 1 "+3.3V" H 4600 6390 50  0000 C CNN
+F 2 "" H 4600 6250 50  0001 C CNN
+F 3 "" H 4600 6250 50  0001 C CNN
+	1    4600 6250
+	1    0    0    -1  
+$EndComp
+$Comp
+L Test_Point TP5
+U 1 1 5A8443BE
+P 6150 5650
+F 0 "TP5" H 6150 5920 50  0000 C CNN
+F 1 "Test_Point" H 6150 5850 50  0000 C CNN
+F 2 "Control_Board:Test_Point" H 6350 5650 50  0001 C CNN
+F 3 "" H 6350 5650 50  0001 C CNN
+	1    6150 5650
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5000 2550 4900 2550
+Wire Wire Line
+	4900 3650 5000 3650
+Wire Wire Line
+	4900 4750 5000 4750
+Connection ~ 4900 3650
+Wire Wire Line
+	4900 5850 5000 5850
+Connection ~ 4900 4750
+Connection ~ 4900 2550
+Wire Wire Line
+	5050 6400 5200 6400
+Wire Wire Line
+	5200 6400 5200 6550
+Wire Wire Line
+	4600 6250 4600 6400
+Wire Wire Line
+	4600 6400 4750 6400
+Wire Wire Line
+	4900 2050 4900 6250
+Connection ~ 4900 5850
+Wire Wire Line
+	4200 5650 5000 5650
+Wire Wire Line
+	4200 4550 5000 4550
+Wire Wire Line
+	4200 3450 5000 3450
+Wire Wire Line
+	4200 2350 5000 2350
+Wire Wire Line
+	4550 4550 4550 4450
+Connection ~ 4550 4550
+$Comp
+L Test_Point TP3
+U 1 1 5A8463F7
+P 4900 2050
+F 0 "TP3" H 4900 2320 50  0000 C CNN
+F 1 "Test_Point" H 4900 2250 50  0000 C CNN
+F 2 "Control_Board:Test_Point" H 5100 2050 50  0001 C CNN
+F 3 "" H 5100 2050 50  0001 C CNN
+	1    4900 2050
+	1    0    0    -1  
+$EndComp
+$Comp
+L Test_Point TP4
+U 1 1 5A846444
+P 6150 4550
+F 0 "TP4" H 6150 4820 50  0000 C CNN
+F 1 "Test_Point" H 6150 4750 50  0000 C CNN
+F 2 "Control_Board:Test_Point" H 6350 4550 50  0001 C CNN
+F 3 "" H 6350 4550 50  0001 C CNN
+	1    6150 4550
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4550 5550 4550 5650
+Connection ~ 4550 5650
+Wire Wire Line
+	5600 2450 6300 2450
+Wire Wire Line
+	5800 2450 5800 2350
+Connection ~ 5800 2450
+Wire Wire Line
+	5600 5750 6300 5750
+Wire Wire Line
+	5600 4650 6300 4650
+Wire Wire Line
+	5600 3550 6300 3550
+Wire Wire Line
+	5800 3550 5800 3450
+Connection ~ 5800 3550
+Wire Wire Line
+	5800 4550 5800 4650
+Connection ~ 5800 4650
+Wire Wire Line
+	5800 5650 5800 5750
+Connection ~ 5800 5750
+Text HLabel 4200 5650 0    60   Input ~ 0
+E1_A
+Text HLabel 4200 4550 0    60   Input ~ 0
+E1_B
+Text HLabel 4200 2350 0    60   Input ~ 0
+E2_A
+Text HLabel 4200 3450 0    60   Input ~ 0
+E2_B
+Text HLabel 6300 5750 2    60   Output ~ 0
+E1_A_Cmp
+Text HLabel 6300 4650 2    60   Output ~ 0
+E1_B_Cmp
+Text HLabel 6300 2450 2    60   Output ~ 0
+E2_A_Cmp
+Text HLabel 6300 3550 2    60   Output ~ 0
+E2_B_Cmp
+$Comp
+L C_Small C6
+U 1 1 5A867DB3
+P 5450 1850
+F 0 "C6" H 5460 1920 50  0000 L CNN
+F 1 "0.1uF" H 5460 1770 50  0000 L CNN
+F 2 "Capacitors_SMD:C_0603_HandSoldering" H 5450 1850 50  0001 C CNN
+F 3 "" H 5450 1850 50  0001 C CNN
+	1    5450 1850
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR046
+U 1 1 5A867EC9
+P 5450 1950
+F 0 "#PWR046" H 5450 1700 50  0001 C CNN
+F 1 "GND" H 5450 1800 50  0000 C CNN
+F 2 "" H 5450 1950 50  0001 C CNN
+F 3 "" H 5450 1950 50  0001 C CNN
+	1    5450 1950
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5200 1550 5200 2150
+Wire Wire Line
+	5200 1650 5450 1650
+Wire Wire Line
+	5450 1650 5450 1750
+Connection ~ 5200 1650
+$Comp
+L R R14
+U 1 1 5A868689
+P 5800 2100
+F 0 "R14" V 5880 2100 50  0000 C CNN
+F 1 "100k" V 5800 2100 50  0000 C CNN
+F 2 "Resistors_SMD:R_0603_HandSoldering" H 5800 2100 50  0001 C CNN
+F 3 "" H 5800 2100 50  0001 C CNN
+	1    5800 2100
+	1    0    0    -1  
+$EndComp
+$Comp
+L +3.3V #PWR047
+U 1 1 5A868843
+P 5800 1850
+F 0 "#PWR047" H 5800 1700 50  0001 C CNN
+F 1 "+3.3V" H 5800 1990 50  0000 C CNN
+F 2 "" H 5800 1850 50  0001 C CNN
+F 3 "" H 5800 1850 50  0001 C CNN
+	1    5800 1850
+	1    0    0    -1  
+$EndComp
+$Comp
+L R R15
+U 1 1 5A868E0B
+P 5800 3200
+F 0 "R15" V 5880 3200 50  0000 C CNN
+F 1 "100k" V 5800 3200 50  0000 C CNN
+F 2 "Resistors_SMD:R_0603_HandSoldering" H 5800 3200 50  0001 C CNN
+F 3 "" H 5800 3200 50  0001 C CNN
+	1    5800 3200
+	1    0    0    1   
+$EndComp
+$Comp
+L +3.3V #PWR048
+U 1 1 5A868E11
+P 5800 2950
+F 0 "#PWR048" H 5800 2800 50  0001 C CNN
+F 1 "+3.3V" H 5800 3090 50  0000 C CNN
+F 2 "" H 5800 2950 50  0001 C CNN
+F 3 "" H 5800 2950 50  0001 C CNN
+	1    5800 2950
+	1    0    0    -1  
+$EndComp
+$Comp
+L R R16
+U 1 1 5A868ED6
+P 5800 4300
+F 0 "R16" V 5880 4300 50  0000 C CNN
+F 1 "100k" V 5800 4300 50  0000 C CNN
+F 2 "Resistors_SMD:R_0603_HandSoldering" H 5800 4300 50  0001 C CNN
+F 3 "" H 5800 4300 50  0001 C CNN
+	1    5800 4300
+	1    0    0    1   
+$EndComp
+$Comp
+L R R17
+U 1 1 5A868F32
+P 5800 5400
+F 0 "R17" V 5880 5400 50  0000 C CNN
+F 1 "100k" V 5800 5400 50  0000 C CNN
+F 2 "Resistors_SMD:R_0603_HandSoldering" H 5800 5400 50  0001 C CNN
+F 3 "" H 5800 5400 50  0001 C CNN
+	1    5800 5400
+	1    0    0    1   
+$EndComp
+$Comp
+L +3.3V #PWR049
+U 1 1 5A868F87
+P 5800 4050
+F 0 "#PWR049" H 5800 3900 50  0001 C CNN
+F 1 "+3.3V" H 5800 4190 50  0000 C CNN
+F 2 "" H 5800 4050 50  0001 C CNN
+F 3 "" H 5800 4050 50  0001 C CNN
+	1    5800 4050
+	1    0    0    -1  
+$EndComp
+$Comp
+L +3.3V #PWR050
+U 1 1 5A868FCB
+P 5800 5150
+F 0 "#PWR050" H 5800 5000 50  0001 C CNN
+F 1 "+3.3V" H 5800 5290 50  0000 C CNN
+F 2 "" H 5800 5150 50  0001 C CNN
+F 3 "" H 5800 5150 50  0001 C CNN
+	1    5800 5150
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6150 4550 6150 4650
+Connection ~ 6150 4650
+Wire Wire Line
+	6150 5650 6150 5750
+Connection ~ 6150 5750
+$Comp
+L Test_Point TP2
+U 1 1 5A846202
+P 4550 5550
+F 0 "TP2" H 4550 5820 50  0000 C CNN
+F 1 "Test_Point" H 4550 5750 50  0000 C CNN
+F 2 "Control_Board:Test_Point" H 4750 5550 50  0001 C CNN
+F 3 "" H 4750 5550 50  0001 C CNN
+	1    4550 5550
+	1    0    0    -1  
+$EndComp
+$Comp
+L Test_Point TP1
+U 1 1 5A845F4D
+P 4550 4450
+F 0 "TP1" H 4550 4720 50  0000 C CNN
+F 1 "Test_Point" H 4550 4650 50  0000 C CNN
+F 2 "Control_Board:Test_Point" H 4750 4450 50  0001 C CNN
+F 3 "" H 4750 4450 50  0001 C CNN
+	1    4550 4450
+	1    0    0    -1  
+$EndComp
+$EndSCHEMATC

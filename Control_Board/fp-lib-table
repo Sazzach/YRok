@@ -1,0 +1,4 @@
+(fp_lib_table
+  (lib (name TerminalBlock)(type Github)(uri "$(KIGITHUB)/TerminalBlock.pretty")(options "")(descr ""))
+  (lib (name Control_Board)(type KiCad)(uri "$(KIPRJMOD)/Control_Board.pretty")(options "")(descr ""))
+)

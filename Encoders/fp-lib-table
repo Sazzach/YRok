@@ -1,0 +1,3 @@
+(fp_lib_table
+  (lib (name Encoder_Lib)(type KiCad)(uri "$(KIPRJMOD)/Encoder_Lib.pretty")(options "")(descr ""))
+)
