@@ -19,8 +19,8 @@ holder_length = 11.6;
 holder_d = body_height;
 holder_offset = body_length;
 
-tab_width = 2.94;
-tab_height = 5.04;
+tab_width = 2.96;
+tab_height = 5.10;
 tab_length = tab_height;
 tab_hole_d = 2.50;
 
@@ -77,6 +77,10 @@ function ym_motor_end_th() = motor_end_th;
 function ym_end_axle_pos() = [end_axle_offset, holder_flat_w/2, ym_height()/2];
 function ym_end_axle_d() = end_axle_d;
 function ym_end_axle_len() = end_axle_len;
+
+function ym_tab_width() = tab_length;
+function ym_tab_th() = tab_width;
+function ym_tab_height() = tab_height;
 
 ////////////////////////////////////////
 
