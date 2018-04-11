@@ -25,6 +25,7 @@ module encoder_assembly() {
 	yrot(90)
 	union() {
 		zmove(5) {
+			color([.1, .3, .7])
 			encoder_wheel();
 
 			down(fancy_th)
