@@ -7,7 +7,7 @@ use <Yellow_Motor.scad>
 use <Encoder.scad>
 
 // Material thickness
-th = 5;
+th = 5.588;
 
 // Tolerance of holes
 tol = 0;
@@ -20,13 +20,17 @@ pi_height = 25;
 pi_hole_x_sep = 58;
 pi_hole_y_sep = 49;
 pi_hole_d = 2.37;
-standoff_height = 11;
+standoff_height = 15.5 - th;
 
 screw_d = 3.37;
 screw_l = 20;
 nut_w = 7.80;
 nut_diag_w = 8.88;
 nut_th = 2.83;
+
+m3_d = 3;
+
+laser_d = 12.07;
 
 battery_length = 101.23;
 battery_th = 15.11;
@@ -45,6 +49,9 @@ motor_sep = 30;
 robot_inner_th = ym_height();
 robot_inner_h = ym_length() + 20;
 robot_inner_m_w = motor_sep + th*2;
+
+tw = 70;
+td = 20;
 
 wheel_d = 65;
 wheel_th = 26;
@@ -81,7 +88,7 @@ module assembly() {
 	translate([0, -ym_height()/2, 0]) {
 		xrot(90)
 		linear_extrude(th)
-		inner_middle();
+		inner_middle(front = true);
 	}
 
 	color([1, 1, .5])
@@ -112,90 +119,144 @@ module assembly() {
 	battery();
 }
 
-// TODO holes for connections to pi
-module middle_sides() {
-	difference() {
-		union() {
-			translate([0, -robot_th/2])
-			square([middle_h, robot_th]);
-
-			yflip_copy() {
-				translate([-th, -robot_th/2 + th])
-				square([tab_width, tab_length]);
-
-				translate([middle_h, -robot_th/2 + th])
-				square([tab_width, tab_length]);
-			}
-		}
-
-		rotate(90)
-		screw_neg();
-
-		translate([middle_h, 0])
-		rotate(-90)
-		screw_neg();
-	}
-}
-
-//TODO battery won't lay flat
 module top() {
 	difference() {
 		hull() {
 			xflip_copy()
 			yflip_copy()
 			translate([robot_width/2 - corner_radius, robot_th/2 - corner_radius])
-			circle(r = corner_radius);
+			circle(r = corner_radius, $fn = small_rad_frags);
 		}
 
 		xflip_copy() {
-			yflip_copy()
-			translate([-robot_width/2 + th, -robot_th/2 + th])
+			translate([-robot_width/2 + th, -tab_length/2])
 			square([tab_width, tab_length]);
 
-			translate([-robot_width/2 + th + th/2, 0])
+			yflip_copy()
+			translate([-robot_width/2 + th + th/2, th + nut_w/2 - robot_th/2])
 			circle(d = screw_d, $fn = small_rad_frags);
 		}
 	}
 }
 
-// TODO cable holes
+module middle_sides() {
+	difference() {
+		union() {
+			translate([0, -robot_th/2])
+			square([middle_h, robot_th]);
+
+			translate([-th, -tab_length/2])
+			square([tab_width, tab_length]);
+
+			translate([middle_h, -tab_length/2])
+			square([tab_width, tab_length]);
+		}
+
+		translate([middle_h/2, 0])
+		hull() {
+			xflip_copy()
+			yflip_copy()
+			translate([(middle_h - screw_l*2)/2 - corner_radius, (robot_th - th*2)/2 - corner_radius])
+			circle(corner_radius, $fn = small_rad_frags);
+		}
+
+		translate([th + 10, 0])
+		hull() {
+			xflip_copy()
+			yflip_copy()
+			translate([10 - corner_radius, th*2 + nut_w + corner_radius - robot_th/2])
+			circle(corner_radius, $fn = small_rad_frags);
+		}
+
+		yflip_copy()
+		translate([screw_l - corner_radius, (th*2 + nut_w - robot_th/2) - corner_radius])
+		difference() {
+			square([corner_radius + 1, corner_radius + 1]);
+
+			circle(r = corner_radius, $fn = small_rad_frags);
+		}
+
+		yflip_copy()
+		translate([0, th + nut_w/2 - robot_th/2]) {
+			rotate(90)
+			screw_neg();
+
+			translate([middle_h, 0])
+			rotate(-90)
+			screw_neg();
+		}
+	}
+}
+
 module middle_platform() {
 	difference() {
 		hull() {
 			xflip_copy()
 			yflip_copy()
 			translate([robot_width/2 - corner_radius, robot_th/2 - corner_radius])
-			circle(r = corner_radius);
+			circle(r = corner_radius, $fn = small_rad_frags);
 		}
 
 		xflip_copy() {
-			yflip_copy()
-			translate([-robot_width/2 + th, -robot_th/2 + th])
+			translate([-robot_width/2 + th, -tab_length/2])
 			square([tab_width, tab_length]);
 
-			translate([-robot_width/2 + th + th/2, 0])
+			yflip_copy()
+			translate([-robot_width/2 + th + th/2, th + nut_w/2 - robot_th/2])
 			circle(d = screw_d, $fn = small_rad_frags);
 		}
 
-		yflip_copy() {
 		xflip_copy()
+		yflip_copy() {
 			translate([-robot_inner_m_w/2, robot_inner_th/2])
 			square([tab_length, tab_width]);
 
-			translate([0, (robot_inner_th + tab_width)/2])
+			translate([tw/2 - nut_w/2 - th, (robot_inner_th + tab_width)/2])
 			circle(d = screw_d, $fn = small_rad_frags);
 		}
 
 		pi(holes = true);
+
+		hull()
+		xflip_copy()
+		yflip_copy()
+		translate([25/2 - corner_radius, robot_inner_th/2 - th - corner_radius])
+		circle(r = corner_radius);
+
+		hull()
+		xflip_copy()
+		translate([(17 - 2)/2, robot_inner_th/2 + th + 1 + 3])
+		circle(d = 2);
+
+		hull()
+		xflip_copy()
+		translate([(7 - 2)/2, -(robot_inner_th/2 + th + 1 + 3)])
+		circle(d = 2);
 	}
 }
 
-module inner_middle() {
+// TODO laser holder part
+
+module inner_middle(front = false) {
 	difference() {
 		union() {
-			//TODO for fun, match motor curve on end
 			translate([-robot_inner_m_w/2, 0])
 			square([robot_inner_m_w, robot_inner_h]);
+
+			//TODO make inner corner round
+			// try minowski
+			hull() {
+				xflip_copy() {
+					translate([-tw/2, robot_inner_h-1])
+					square([1, 1]);
+
+					translate([-tw/2 + corner_radius, robot_inner_h-td])
+					circle(r = corner_radius, $fn = small_rad_frags);
+				}
+
+				translate([-robot_inner_m_w/2, robot_inner_h-td*2])
+				square([robot_inner_m_w, 1]);
+			}
 
 			xflip_copy()
 			translate([-robot_inner_m_w/2, -tab_width])
@@ -209,12 +270,32 @@ module inner_middle() {
 		rotate(180)
 		screw_neg();
 
-		translate([0, robot_inner_h])
+		xflip_copy()
+		translate([tw/2 - nut_w/2 - th, robot_inner_h])
 		screw_neg();
 
 		xflip_copy()
 		translate([-motor_sep/2, motor_screw_hole_offset - tab_length/2])
 		square([tab_width, tab_length]);
+
+		translate([0, screw_l + laser_d/2])
+		circle(d = laser_d, $fn = small_rad_frags);
+
+		translate([0, screw_l + laser_d + 4/2 + th])
+		hull()
+		yflip_copy()
+		translate([0, 4 - m3_d/2])
+		circle(d = m3_d, $fn = small_rad_frags);
+
+		if(front) {
+			camera_screw_d = 1.4;
+
+			translate([0, -12.5/2 + robot_inner_h - 7])
+			xflip_copy()
+			yflip_copy()
+			translate([21/2, 12.5/2])
+			circle(d = camera_screw_d, $fn = small_rad_frags);
+		}
 	}
 }
 
