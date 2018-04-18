@@ -149,6 +149,7 @@ int main(void)
     while (!data) {
     }
     transmit_string(buffer);
+    transmit_char('\n');
     data = 0;
   }
 }
