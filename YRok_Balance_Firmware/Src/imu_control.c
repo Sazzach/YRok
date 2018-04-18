@@ -188,12 +188,7 @@ int who_am_i()
 
 	i_am = I2C1->RXDR;
 	I2C1->CR2 |= (0x01 << 14);	//Set stop bit
-	if(i_am == 0x69)
-	    GPIOC->ODR |= (0x1 << 15);
-	else
-		GPIOC->ODR &= (0x1 << 15);
-
-	return 0;
+	return i_am;
 }
 
 void EXTI4_15_IRQHandler()

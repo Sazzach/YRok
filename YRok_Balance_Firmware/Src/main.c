@@ -39,6 +39,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32f0xx_hal.h"
+#include "imu_control.h"
 
 /* USER CODE BEGIN Includes */
 
@@ -138,6 +139,7 @@ int main(void)
 
   init_usr_led();
   init_uart();
+  imu_init();
   transmit_string("Repeat: ");
 
   while (1)
