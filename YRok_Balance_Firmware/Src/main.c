@@ -140,7 +140,9 @@ int main(void)
 
   init_usr_led();
   init_uart();
-  who_am_i = (imu_init()) & 0xFF;
+
+  transmit_string("Starting IMU_init");
+  who_am_i = imu_init();
   transmit_char(who_am_i);
 
   transmit_string("Repeat: ");
