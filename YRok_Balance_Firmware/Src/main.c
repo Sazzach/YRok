@@ -134,12 +134,15 @@ void init_usr_led()
 
 int main(void)
 {
+  char who_am_i;
   HAL_Init();
   SystemClock_Config();
 
   init_usr_led();
   init_uart();
-  imu_init();
+  who_am_i = (imu_init()) & 0xFF;
+  transmit_char(who_am_i);
+
   transmit_string("Repeat: ");
 
   while (1)
