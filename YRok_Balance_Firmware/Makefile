@@ -74,6 +74,7 @@ Src/system_stm32f0xx.c \
 Src/motor.c \
 Src/uart.c \
 Src/imu_control.c \
+Src/pid.c \
 
 # ASM sources
 ASM_SOURCES =  \

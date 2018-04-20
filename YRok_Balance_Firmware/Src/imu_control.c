@@ -5,7 +5,7 @@
 const uint8_t SLAVE = 0x6B;
 int16_t gyro_accel_data[4];
 //int imu_ready;
-const char error = 'Q';
+const char i2c_error = 'Q';
 
 /*	
  *
@@ -47,20 +47,20 @@ int imu_init()
 	I2C1->CR2 |= (0x1 << 13);	// Set Start Bit
 
 	if(write_wait() == 1)
-		return error;
+		return i2c_error;
 
 	// TXDR is the next byte I would like to transmit
 	// 0x10 is the address of CTRL1_XL
 	I2C1->TXDR = 0x10;
 
 	if(write_wait() == 1)
-		return error;
+		return i2c_error;
 	
 	// 0x80 is what I want to set CTRL1_XL to
 	I2C1->TXDR = 0x80;
 
 	if(write_wait() == 1)
-		return error;
+		return i2c_error;
 
 	// 0x80 is also what I want to set the next address to (CTRL2_G at 0x11)
 	I2C1->TXDR = 0x80;
@@ -83,21 +83,21 @@ int imu_init()
 	I2C1->CR2 |= (0x1 << 13);	// Set Start Bit
 
 	if(write_wait() == 1)
-		return error;
+		return i2c_error;
 
 	// TXDR is the next byte I would like to transmit
 	// 0x18 is the address of CTRL9_XL
 	I2C1->TXDR = 0x18;
 
 	if(write_wait() == 1)
-		return error;
+		return i2c_error;
 	
 	// 0x28 is what I want to set CTRL9_XL to
 	// 0x28 activates the Z and X in the Accelerometer
 	I2C1->TXDR = 0x28;
 
 	if(write_wait() == 1)
-		return error;
+		return i2c_error;
 
 	// 0x30 is what I want to set the next address to (CTRL10_C at 0x19)
 	// 0x30 activavtes the Z and Y in the Gyroscope
@@ -127,7 +127,7 @@ int who_am_i()
 	I2C1->CR2 |= (0x1 << 13);	// Set Start Bit
 
 	if(write_wait() == 1)
-		return error;
+		return i2c_error;
 
 	// TXDR is the next byte I would like to transmit
 	// 0x0F is the address of Who_am_i
@@ -154,7 +154,7 @@ int who_am_i()
 		if(I2C1->ISR & I2C_ISR_NACKF)
 		{
 			I2C1->ISR |= I2C_ISR_NACKF; 	// to clear the bit
-			return error; // reading failed, so leave and try again next time
+			return i2c_error; // reading failed, so leave and try again next time
 		}
 	}
 
@@ -177,7 +177,7 @@ int16_t get_ax()
 	I2C1->CR2 |= (0x1 << 13);	// Set Start Bit
 
 	if(write_wait() == 1)
-		return error;
+		return i2c_error;
 
 	// TXDR is the next byte I would like to transmit
 	// 0x0F is the address of Who_am_i
@@ -204,7 +204,7 @@ int16_t get_ax()
 		if(I2C1->ISR & I2C_ISR_NACKF)
 		{
 			I2C1->ISR |= I2C_ISR_NACKF; 	// to clear the bit
-			return error; // reading failed, so leave and try again next time
+			return i2c_error; // reading failed, so leave and try again next time
 		}
 	}
 
@@ -219,7 +219,7 @@ int16_t get_ax()
 		if(I2C1->ISR & I2C_ISR_NACKF)
 		{
 			I2C1->ISR |= I2C_ISR_NACKF; 	// to clear the bit
-			return error; // reading failed, so leave and try again next time
+			return i2c_error; // reading failed, so leave and try again next time
 		}
 	}
 

@@ -39,13 +39,12 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32f0xx_hal.h"
-#include "imu_control.h"
-#include "uart.h"
 
 /* USER CODE BEGIN Includes */
-
+#include "imu_control.h"
+#include "uart.h"
+#include "pid.h"
 #include "motor.h"
-
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
