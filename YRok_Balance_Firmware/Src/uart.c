@@ -17,6 +17,22 @@ void transmit_string(char *s) {
   }
 }
 
+void transmit_hex(uint32_t hex) {
+  int i;
+
+  for(i = 7; i >= 0; i--) {
+    char digit = (hex >> i*4) & 0xF;
+    if(digit <= 9) {
+      digit += '0';
+    }
+    else {
+      digit += 'A' - 0xA;
+    }
+
+    transmit_char(digit);
+  }
+}
+
 int idx = 0;
 char buffer[7];
 volatile int uart_data = 0;

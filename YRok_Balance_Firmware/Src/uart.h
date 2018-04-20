@@ -21,6 +21,11 @@ void transmit_char(char c);
 void transmit_string(char *s);
 
 /*
+ * transmit hex over the uart
+ */
+void transmit_hex(uint32_t hex);
+
+/*
  * initialize the uart
  */
 void init_uart();
