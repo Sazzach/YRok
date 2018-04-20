@@ -1,6 +1,8 @@
 #ifndef UART_H_
 #define UART_H_
 
+#include "stm32f0xx.h"
+
 /*
  * buffer to read from when uart_data is high/ready
  */

@@ -1,5 +1,4 @@
 #include "uart.h"
-#include "stm32f0xx.h"
 
 void transmit_char(char c) {
   // wait until transmit data register is empty
