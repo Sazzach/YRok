@@ -7,6 +7,9 @@
 #define MOTOR_FORWARD 1
 #define MOTOR_BACKWARD 2
 
+#define MOTOR_LEFT 1
+#define MOTOR_RIGHT 2
+
 void init_motors();
 void enable_motors();
 void disable_motors();

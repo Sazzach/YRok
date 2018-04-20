@@ -107,12 +107,26 @@ int main(void)
   who_am_i = imu_init();
   transmit_char(who_am_i);
 
-  transmit_string("Repeat: ");
+  transmit_string("Starting motors");
+  init_motors();
+  enable_motors();
 
   while (1)
   {
-  	HAL_Delay(1000);
     GPIOC->ODR ^= (0x1 << 15);
+    int measured_acceleration = get_ax();
+    int pwm = PI_update(measured_acceleration);
+    if (pwm < 0) {
+      set_dir(MOTOR_LEFT, MOTOR_BACKWARD);
+      set_dir(MOTOR_RIGHT, MOTOR_BACKWARD);
+      set_speed(MOTOR_LEFT, -pwm);
+      set_speed(MOTOR_RIGHT, -pwm);
+    } else {
+      set_dir(MOTOR_LEFT, MOTOR_FORWARD);
+      set_dir(MOTOR_RIGHT, MOTOR_FORWARD);
+      set_speed(MOTOR_LEFT, pwm);
+      set_speed(MOTOR_RIGHT, pwm);
+    }
   }
 }
 
