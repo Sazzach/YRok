@@ -3,8 +3,9 @@
 
 // The slave address
 const uint8_t SLAVE = 0x6B;
-extern int16_t gyro_accel_data[4];
-extern uint8_t imu_ready;
+int16_t gyro_accel_data[4];
+//int imu_ready;
+const char error = 'Q';
 
 /*	
  *
@@ -16,7 +17,6 @@ extern uint8_t imu_ready;
 int imu_init()
 {
 	int i;
-	imu_ready = 0;
 	for(i = 0; i < 4; i++)
 		gyro_accel_data[i] = 0;
 
@@ -47,20 +47,20 @@ int imu_init()
 	I2C1->CR2 |= (0x1 << 13);	// Set Start Bit
 
 	if(write_wait() == 1)
-		return 1;
+		return error;
 
 	// TXDR is the next byte I would like to transmit
 	// 0x10 is the address of CTRL1_XL
 	I2C1->TXDR = 0x10;
 
 	if(write_wait() == 1)
-		return 1;
+		return error;
 	
 	// 0x80 is what I want to set CTRL1_XL to
 	I2C1->TXDR = 0x80;
 
 	if(write_wait() == 1)
-		return 1;
+		return error;
 
 	// 0x80 is also what I want to set the next address to (CTRL2_G at 0x11)
 	I2C1->TXDR = 0x80;
@@ -83,21 +83,21 @@ int imu_init()
 	I2C1->CR2 |= (0x1 << 13);	// Set Start Bit
 
 	if(write_wait() == 1)
-		return 1;
+		return error;
 
 	// TXDR is the next byte I would like to transmit
 	// 0x18 is the address of CTRL9_XL
 	I2C1->TXDR = 0x18;
 
 	if(write_wait() == 1)
-		return 1;
+		return error;
 	
 	// 0x28 is what I want to set CTRL9_XL to
 	// 0x28 activates the Z and X in the Accelerometer
-	I2C1->TXDR = 0x30;
+	I2C1->TXDR = 0x28;
 
 	if(write_wait() == 1)
-		return 1;
+		return error;
 
 	// 0x30 is what I want to set the next address to (CTRL10_C at 0x19)
 	// 0x30 activavtes the Z and Y in the Gyroscope
@@ -111,44 +111,7 @@ int imu_init()
 
 	I2C1->CR2 |= (0x01 << 14);	//Set stop bit
 
-	// Set up to interrupt when Gyro is ready -- accel should also be ready then
-	// SLAVE contains the slave address and it needs to be shifted 1
-	I2C1->CR2 = (SLAVE << 1);
-	//Set 2 bytes to send and RD_WRN to write (0);
-	I2C1->CR2 |= (0x2 << 16);
-	I2C1->CR2 &= ~(0x1 << 10);
-	I2C1->CR2 |= (0x1 << 13);	// Set Start Bit
-
-	if(write_wait() == 1)
-		return 1;
-
-	// TXDR is the next byte I would like to transmit
-	// 0x0D is the address of INT1_CTRL
-	I2C1->TXDR = 0x0D;
-
-	if(write_wait() == 1)
-		return 1;
-	
-	// 0x02 is what I want to set INT1_CTRL to
-	// 0x02 activates the interrupt for the Gyro data ready
-	I2C1->TXDR = 0x02;
-
-	while(1)
-	{ // Wait for transfer complete. Bit 6 is 1 when I've sent the # of bytes I want
-		if(I2C1->ISR & I2C_ISR_TC)
-			break;
-	}
-
-	I2C1->CR2 |= (0x01 << 14);	//Set stop bit
-
 	i = who_am_i();
-
-	/* Now enable the interrupts */
-	EXTI->IMR |= EXTI_IMR_IM13;	// Activate line 13 for EXTI
-	EXTI->RTSR |= EXTI_RTSR_RT13;	// Activate positive edge trigger
-
-	SYSCFG->EXTICR[3] |= SYSCFG_EXTICR1_EXTI0_PB;
-	NVIC_EnableIRQ(EXTI4_15_IRQn);
 
 	return i;
 	//return 0;
@@ -164,7 +127,7 @@ int who_am_i()
 	I2C1->CR2 |= (0x1 << 13);	// Set Start Bit
 
 	if(write_wait() == 1)
-		return 1;
+		return error;
 
 	// TXDR is the next byte I would like to transmit
 	// 0x0F is the address of Who_am_i
@@ -191,7 +154,7 @@ int who_am_i()
 		if(I2C1->ISR & I2C_ISR_NACKF)
 		{
 			I2C1->ISR |= I2C_ISR_NACKF; 	// to clear the bit
-			return 1; // reading failed, so leave and try again next time
+			return error; // reading failed, so leave and try again next time
 		}
 	}
 
@@ -203,13 +166,64 @@ int who_am_i()
 	return i_am;
 }
 
-void EXTI4_15_IRQHandler()
+// only reads first byte of X Accel, full function is commented below
+int get_data()
+{
+	uint8_t i_am;
+	I2C1->CR2 = (SLAVE << 1);
+	//Set 1 bytes to send and RD_WRN to write (0);
+	I2C1->CR2 |= (0x1 << 16);
+	I2C1->CR2 &= ~(0x1 << 10);
+	I2C1->CR2 |= (0x1 << 13);	// Set Start Bit
+
+	if(write_wait() == 1)
+		return error;
+
+	// TXDR is the next byte I would like to transmit
+	// 0x0F is the address of Who_am_i
+	I2C1->TXDR = 0x28;
+
+	while(1)
+	{ // Wait for transfer complete.
+		if(I2C1->ISR & I2C_ISR_TC)
+			break;
+	}
+
+	I2C1->CR2 = (SLAVE << 1);
+	//Set 1 bytes to read and RD_WRN to read (1);
+	I2C1->CR2 |= (0x1 << 16);
+	I2C1->CR2 |= (0x1 << 10);
+	I2C1->CR2 |= (0x1 << 13);	// Set Start Bit
+				
+	while(1)
+	{
+		if(I2C1->ISR & I2C_ISR_RXNE)
+		{
+			break;
+		}
+		if(I2C1->ISR & I2C_ISR_NACKF)
+		{
+			I2C1->ISR |= I2C_ISR_NACKF; 	// to clear the bit
+			return error; // reading failed, so leave and try again next time
+		}
+	}
+
+	i_am = I2C1->RXDR;
+
+	// could wait for transfer complete here, but probably don't need to
+
+	I2C1->CR2 |= (0x01 << 14);	//Set stop bit
+	return i_am;
+}
+
+/*
+//EXTI4_15_IRQHandler
+int get_data()
 {
 	// Read the Z and X on Accel, Z and Y on Gyro
-	uint16_t remaining = 10;
-	uint16_t in_data[10];
-	uint16_t* other_point = &remaining;
-	int16_t* point = (int16_t*)other_point;
+	int16_t remaining = 10;
+	int16_t in_data[10];
+	int16_t* point = &remaining;
 
 
 	I2C1->CR2 = (SLAVE << 1);
@@ -219,7 +233,7 @@ void EXTI4_15_IRQHandler()
 	I2C1->CR2 |= (0x01 << 13);	// Set Start Bit
 	
 	if(write_wait() == 1)
-		return;	// Failed to connect, try again next time
+		return error;	// Failed to connect, try again next time
 
 	//0x24 to request start of Y Gyro data
 	I2C1->TXDR = 0x24;
@@ -250,7 +264,7 @@ void EXTI4_15_IRQHandler()
 		if(I2C1->ISR & I2C_ISR_NACKF)
 		{
 			I2C1->ISR |= I2C_ISR_NACKF; 	// to clear the bit
-			return; // reading failed, so leave and try again next time
+			return error; // reading failed, so leave and try again next time
 		}
 	}
 	
@@ -259,17 +273,18 @@ void EXTI4_15_IRQHandler()
 
 	// I read in the data as uint16_t, and I want interperet them as int16_t
 	// point is a pointer to int16_t and remaining is uint16_t, so I can just use those vars
-	remaining = in_data[9] + (in_data[8] << 8);	// 8 and 9 contain Y_Gyro
+	remaining = in_data[9] | (in_data[8] << 8);	// 8 and 9 contain Y_Gyro
 	gyro_accel_data[0] = *point;
-	remaining = in_data[7] + (in_data[6] << 8);	// 6 and 7 contain Z Gyro
+	remaining = in_data[7] | (in_data[6] << 8);	// 6 and 7 contain Z Gyro
 	gyro_accel_data[1] = *point;
-	remaining = in_data[5] + (in_data[4] << 8);	// 5 and 4 contain X Accel
+	remaining = in_data[5] | (in_data[4] << 8);	// 5 and 4 contain X Accel
 	gyro_accel_data[2] = *point;	
-	remaining = in_data[1] + (in_data[0] << 8);	// 1 and 0 contain Z Accel
+	remaining = in_data[1] | (in_data[0] << 8);	// 1 and 0 contain Z Accel
 	gyro_accel_data[3] = *point;
 
-	imu_ready = 1;
+	return 'X';
 }
+*/
 
 int write_wait()
 {

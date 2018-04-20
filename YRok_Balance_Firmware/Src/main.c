@@ -164,12 +164,15 @@ void wait_for_button()
 
 int main(void)
 {
-  char who_am_i;
+
+  char who_am;
   HAL_Init();
   SystemClock_Config();
 
   init_usr_led();
+
   init_uart();
+	transmit_string("RESET\r\n");
 
 //  MX_GPIO_Init();
 //  MX_TIM2_Init();
@@ -178,24 +181,40 @@ int main(void)
 //  TIM2->CNT = 0x7FFF;
 //  TIM3->CNT = 0x7FFF;
 
-  transmit_string("Starting IMU_init");
-  who_am_i = imu_init();
-  transmit_char(who_am_i);
+  transmit_string("Starting IMU_init\r\n");
+  who_am = imu_init();
+  transmit_char(who_am);
+  transmit_char('\n');
 
-  transmit_string("Repeat: ");
+
 
   while (1)
   {
-  	HAL_Delay(1000);
-    GPIOC->ODR ^= (0x1 << 15);
+//	HAL_Delay(1000);
+	transmit_char(who_am_i());
 
-    // echo over uart
-    while (!data) {
-    }
-    transmit_string(buffer);
-    transmit_char('\n');
-    data = 0;
+    transmit_char(65+get_data());
+    //transmit_string("\nX Accel: ");
+	transmit_char('\n');
+	transmit_char('\r');
+//	transmit_hex(gyro_accel_data[2]);
+	
+  //{
+    //sprintf(imu_stuff, "\nX Accel: %d", gyro_accel_data[2]);
+    //transmit_string(imu_stuff);
+/*    sprintf(imu_stuff, "\nZ Accel: %d", gyro_accel_data[3]);
+    transmit_string(imu_stuff);
+    sprintf(imu_stuff, "\nY Gyro: %d", gyro_accel_data[0]);
+    transmit_string(imu_stuff);
+    sprintf(imu_stuff, "\nZ Gyro: %d", gyro_accel_data[1]);
+    transmit_string(imu_stuff);*/
+	//imu_ready = 0;
+
+	
+ // HAL_Delay(1000);
+ // }
   }
+
 }
 
 /** System Clock Configuration

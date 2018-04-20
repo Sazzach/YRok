@@ -3,8 +3,8 @@
 
 #include "stdint.h"
 
-int16_t gyro_accel_data[4];
-uint8_t imu_ready;
+extern int16_t gyro_accel_data[4];
+//extern int imu_ready;
 
 /*	Initializes all the necessary pins for the I2C communication with the IMU
  *	Also communicates with the IMU to configure its settings for our use
@@ -25,6 +25,7 @@ int who_am_i(void);
  *	Communicates with the IMU to gather the Y and Z of the Gyro and the X and Z of the Accel
  *	Places the gathered data into the gyro_accel_data array and raises the imu_ready flag
  */
-void EXTI4_15_IRQHandler(void);
+ //EXTI4_15_IRQHandler
+int get_data(void);
 
 #endif
