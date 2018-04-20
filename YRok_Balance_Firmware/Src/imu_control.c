@@ -167,9 +167,9 @@ int who_am_i()
 }
 
 // only reads first byte of X Accel, full function is commented below
-int get_data()
+int16_t get_ax()
 {
-	uint8_t i_am;
+	uint16_t i_am;
 	I2C1->CR2 = (SLAVE << 1);
 	//Set 1 bytes to send and RD_WRN to write (0);
 	I2C1->CR2 |= (0x1 << 16);
@@ -191,7 +191,7 @@ int get_data()
 
 	I2C1->CR2 = (SLAVE << 1);
 	//Set 1 bytes to read and RD_WRN to read (1);
-	I2C1->CR2 |= (0x1 << 16);
+	I2C1->CR2 |= (0x2 << 16);
 	I2C1->CR2 |= (0x1 << 10);
 	I2C1->CR2 |= (0x1 << 13);	// Set Start Bit
 				
@@ -209,6 +209,21 @@ int get_data()
 	}
 
 	i_am = I2C1->RXDR;
+
+	while(1)
+	{
+		if(I2C1->ISR & I2C_ISR_RXNE)
+		{
+			break;
+		}
+		if(I2C1->ISR & I2C_ISR_NACKF)
+		{
+			I2C1->ISR |= I2C_ISR_NACKF; 	// to clear the bit
+			return error; // reading failed, so leave and try again next time
+		}
+	}
+
+	i_am |= I2C1->RXDR << 8;
 
 	// could wait for transfer complete here, but probably don't need to
 

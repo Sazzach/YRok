@@ -26,6 +26,9 @@ int who_am_i(void);
  *	Places the gathered data into the gyro_accel_data array and raises the imu_ready flag
  */
  //EXTI4_15_IRQHandler
-int get_data(void);
+//int get_data(void);
+
+// Gets the byte for the accelerometer's x
+int16_t get_ax(void);
 
 #endif
