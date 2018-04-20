@@ -65,9 +65,11 @@ int imu_init()
 	// 0x80 is also what I want to set the next address to (CTRL2_G at 0x11)
 	I2C1->TXDR = 0x80;
 
-	while(!(I2C1->ISR & (0x01 << 6)))
+	while(1)
 	{ // Wait for transfer complete. Bit 6 is 1 when I've sent the # of bytes I want
-	}					
+		if(I2C1->ISR & I2C_ISR_TC)
+			break;
+	}				
 	I2C1->CR2 |= (0x01 << 14);	//Set stop bit
 
 	
@@ -101,19 +103,13 @@ int imu_init()
 	// 0x30 activavtes the Z and Y in the Gyroscope
 	I2C1->TXDR = 0x30;
 
-	while(!(I2C1->ISR & (0x01 << 6)))
+	while(1)
 	{ // Wait for transfer complete. Bit 6 is 1 when I've sent the # of bytes I want
+		if(I2C1->ISR & I2C_ISR_TC)
+			break;
 	}
 
 	I2C1->CR2 |= (0x01 << 14);	//Set stop bit
-
-	/* Now enable the interrupts */
-	EXTI->IMR |= EXTI_IMR_IM13;	// Activate line 13 for EXTI
-	EXTI->RTSR |= EXTI_RTSR_RT13;	// Activate positive edge trigger
-
-	SYSCFG->EXTICR[3] |= SYSCFG_EXTICR1_EXTI0_PB;
-	NVIC_EnableIRQ(EXTI4_15_IRQn);
-	NVIC_SetPriority(EXTI4_15_IRQn, 1); // 1 is the highest priority
 
 	// Set up to interrupt when Gyro is ready -- accel should also be ready then
 	// SLAVE contains the slave address and it needs to be shifted 1
@@ -137,14 +133,24 @@ int imu_init()
 	// 0x02 activates the interrupt for the Gyro data ready
 	I2C1->TXDR = 0x02;
 
-	while(!(I2C1->ISR & (0x01 << 6)))
+	while(1)
 	{ // Wait for transfer complete. Bit 6 is 1 when I've sent the # of bytes I want
+		if(I2C1->ISR & I2C_ISR_TC)
+			break;
 	}
 
 	I2C1->CR2 |= (0x01 << 14);	//Set stop bit
 
-	return who_am_i();
+	i = who_am_i();
 
+	/* Now enable the interrupts */
+	EXTI->IMR |= EXTI_IMR_IM13;	// Activate line 13 for EXTI
+	EXTI->RTSR |= EXTI_RTSR_RT13;	// Activate positive edge trigger
+
+	SYSCFG->EXTICR[3] |= SYSCFG_EXTICR1_EXTI0_PB;
+	NVIC_EnableIRQ(EXTI4_15_IRQn);
+
+	return i;
 	//return 0;
 }
 
@@ -153,7 +159,7 @@ int who_am_i()
 	uint8_t i_am;
 	I2C1->CR2 = (SLAVE << 1);
 	//Set 1 bytes to send and RD_WRN to write (0);
-	I2C1->CR2 |= (0x2 << 16);
+	I2C1->CR2 |= (0x1 << 16);
 	I2C1->CR2 &= ~(0x1 << 10);
 	I2C1->CR2 |= (0x1 << 13);	// Set Start Bit
 
@@ -164,8 +170,10 @@ int who_am_i()
 	// 0x0F is the address of Who_am_i
 	I2C1->TXDR = 0x0F;
 
-	while(!(I2C1->ISR & (0x01 << 6)))
-	{ // Wait for transfer complete. Bit 6 is 1 when I've sent the # of bytes I want
+	while(1)
+	{ // Wait for transfer complete.
+		if(I2C1->ISR & I2C_ISR_TC)
+			break;
 	}
 
 	I2C1->CR2 = (SLAVE << 1);
@@ -174,19 +182,23 @@ int who_am_i()
 	I2C1->CR2 |= (0x1 << 10);
 	I2C1->CR2 |= (0x1 << 13);	// Set Start Bit
 				
-	while(true)
+	while(1)
 	{
-		if(I2C1->ISR & (0x01 << 2))
+		if(I2C1->ISR & I2C_ISR_RXNE)
 		{
 			break;
 		}
-		if(I2C1->ISR & (0x01 << 4))
+		if(I2C1->ISR & I2C_ISR_NACKF)
 		{
+			I2C1->ISR |= I2C_ISR_NACKF; 	// to clear the bit
 			return 1; // reading failed, so leave and try again next time
 		}
 	}
 
 	i_am = I2C1->RXDR;
+
+	// could wait for transfer complete here, but probably don't need to
+
 	I2C1->CR2 |= (0x01 << 14);	//Set stop bit
 	return i_am;
 }
@@ -196,7 +208,8 @@ void EXTI4_15_IRQHandler()
 	// Read the Z and X on Accel, Z and Y on Gyro
 	uint16_t remaining = 10;
 	uint16_t in_data[10];
-	int16_t* point = &(int16_t)remaining;
+	uint16_t* other_point = &remaining;
+	int16_t* point = (int16_t*)other_point;
 
 
 	I2C1->CR2 = (SLAVE << 1);
@@ -211,8 +224,10 @@ void EXTI4_15_IRQHandler()
 	//0x24 to request start of Y Gyro data
 	I2C1->TXDR = 0x24;
 
-	while(!(I2C1->ISR & (0x01 << 6)))
-	{	//Wait for transfer complete
+	while(1)
+	{ // Wait for transfer complete. Bit 6 is 1 when I've sent the # of bytes I want
+		if(I2C1->ISR & I2C_ISR_TC)
+			break;
 	}			
 				
 	I2C1->CR2 = (SLAVE << 1);
@@ -227,13 +242,14 @@ void EXTI4_15_IRQHandler()
 				
 	while(remaining > 0)
 	{
-		if(I2C1->ISR & (0x01 << 2))
+		if(I2C1->ISR & I2C_ISR_RXNE)
 		{
 			remaining--;
 			in_data[remaining] = I2C1->RXDR;
 		}
-		if(I2C1->ISR & (0x01 << 4))
+		if(I2C1->ISR & I2C_ISR_NACKF)
 		{
+			I2C1->ISR |= I2C_ISR_NACKF; 	// to clear the bit
 			return; // reading failed, so leave and try again next time
 		}
 	}
@@ -260,14 +276,14 @@ int write_wait()
 	// wait for write to complete or for NACK
 	while(1)
 	{
-		if(I2C1->ISR & (0x01 << 1))
+		if(I2C1->ISR & I2C_ISR_TXIS)
 		{
 			// Transfer complete
 			return 0;
 		}
-		if(I2C1->ISR & (0x01 << 4))
+		if(I2C1->ISR & I2C_ISR_NACKF)
 		{
-			I2C1->ISR |= (0x01 << 4); 	// to clear the bit
+			I2C1->ISR |= I2C_ISR_NACKF; 	// to clear the bit
 			// Got a NACK, which means the device did not respond
 			return 1;
 		}

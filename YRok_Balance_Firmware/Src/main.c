@@ -164,6 +164,7 @@ void wait_for_button()
 
 int main(void)
 {
+  char who_am_i;
   HAL_Init();
   SystemClock_Config();
 
@@ -176,29 +177,24 @@ int main(void)
 //
 //  TIM2->CNT = 0x7FFF;
 //  TIM3->CNT = 0x7FFF;
-//
-//  HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_ALL);
-//  HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
-//
-//  wait_for_button();
-//
-//  init_motors();
-//  enable_motors();
-//  set_dir(1, MOTOR_FORWARD);
-//  set_speed(1, 50);
-//
-//  uint32_t prev_ct = TIM2->CNT;
+
+  transmit_string("Starting IMU_init");
+  who_am_i = imu_init();
+  transmit_char(who_am_i);
+
+  transmit_string("Repeat: ");
+
   while (1)
   {
-    //transmit_string("asdf\r\n");
-    transmit_char('a');
-    HAL_Delay(500);
+  	HAL_Delay(1000);
+    GPIOC->ODR ^= (0x1 << 15);
 
-//    if(prev_ct != TIM2->CNT) {
-//      prev_ct = TIM2->CNT;
-//      transmit_hex(prev_ct);
-//      transmit_string("\r\n");
-//    }
+    // echo over uart
+    while (!data) {
+    }
+    transmit_string(buffer);
+    transmit_char('\n');
+    data = 0;
   }
 }
 
