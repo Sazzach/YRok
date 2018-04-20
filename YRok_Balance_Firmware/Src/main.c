@@ -89,12 +89,15 @@ void wait_for_button()
 
 int main(void)
 {
-  char who_am_i;
+
+  char who_am;
   HAL_Init();
   SystemClock_Config();
 
   init_usr_led();
+
   init_uart();
+	transmit_string("RESET\r\n");
 
 //  MX_GPIO_Init();
 //  MX_TIM2_Init();
@@ -103,9 +106,10 @@ int main(void)
 //  TIM2->CNT = 0x7FFF;
 //  TIM3->CNT = 0x7FFF;
 
-  transmit_string("Starting IMU_init");
-  who_am_i = imu_init();
-  transmit_char(who_am_i);
+  transmit_string("Starting IMU_init\r\n");
+  who_am = imu_init();
+  transmit_char(who_am);
+  transmit_char('\n');
 
   transmit_string("Starting motors");
   init_motors();
@@ -128,6 +132,7 @@ int main(void)
       set_speed(MOTOR_RIGHT, pwm);
     }
   }
+
 }
 
 /** System Clock Configuration
