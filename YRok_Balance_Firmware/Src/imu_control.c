@@ -3,8 +3,8 @@
 
 // The slave address
 const uint8_t SLAVE = 0x6B;
-extern int16_t gyro_accel_data[4];
-extern uint8_t imu_ready;
+int16_t gyro_accel_data[4];
+uint8_t imu_ready;
 
 /*	
  *

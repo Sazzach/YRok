@@ -3,8 +3,8 @@
 
 #include "stdint.h"
 
-int16_t gyro_accel_data[4];
-uint8_t imu_ready;
+extern int16_t gyro_accel_data[4];
+extern uint8_t imu_ready;
 
 /*	Initializes all the necessary pins for the I2C communication with the IMU
  *	Also communicates with the IMU to configure its settings for our use
