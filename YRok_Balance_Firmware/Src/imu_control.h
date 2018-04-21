@@ -32,7 +32,7 @@ int who_am_i(void);
 int16_t get_ax(void);
 
 // Gets the 2 bytes for the gyroscope's y
-int16_t get_gy()
+int16_t get_gy();
 
 
 #endif
