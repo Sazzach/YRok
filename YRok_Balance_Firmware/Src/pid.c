@@ -6,13 +6,14 @@
 volatile int32_t gyro_offset = 0xFFFFFDC3;
 
 volatile double angle = 0;
+double angle_offset = 2.5;
 volatile int32_t target_angle = 0;    // target angle
 volatile int32_t error = 0;         // error signal
 volatile int32_t error_integral = 0;    // integrated error signal
-volatile int32_t Kp = 10;            // proportional gain
-volatile int32_t Ki = 0;            // integral gain
+volatile int32_t Kp = 700;            // proportional gain
+volatile int32_t Ki = 10;            // integral gain
 volatile int32_t Kd = -0;            // derivative gain
-int32_t clamp = 25600;
+int32_t clamp = 6400;
 
 
 int calibrate_gyro() {
@@ -41,16 +42,16 @@ int PI_update(int32_t accel_x, int32_t gyro_y) {
   gyro_y -= gyro_offset;
   gyro_y *= -1;
 
-  transmit_hex(accel_x);
-  transmit_char('\t');
-  transmit_hex(gyro_y);
-  transmit_char('\t');
+  //transmit_hex(accel_x);
+  //transmit_char('\t');
+  //transmit_hex(gyro_y);
+  //transmit_char('\t');
   angle = ((0.98) * (angle + (((gyro_y / 131.0) / 100.0))) + (0.02 * (accel_x / 182.0)));
-  transmit_hex(angle);
-  transmit_char('\r');
-  transmit_char('\n');
+  //transmit_hex(angle);
+  //transmit_char('\r');
+  //transmit_char('\n');
 
-  error = target_angle - angle;
+  error = target_angle - (int32_t) (angle - angle_offset);
 
   /// Calculate integral portion of PI controller, write to "error_integral" variable
   error_integral += Ki * error;
@@ -89,7 +90,7 @@ int PI_update(int32_t accel_x, int32_t gyro_y) {
   */
 
   /// Divide the output into the proper range for output adjustment
-  output /= 256;
+  output /= 64;
 
   /// Clamp the output value between 0 and 100
   if (output < -100) {
