@@ -28,7 +28,11 @@ int who_am_i(void);
  //EXTI4_15_IRQHandler
 //int get_data(void);
 
-// Gets the byte for the accelerometer's x
+// Gets the 2 bytes for the accelerometer's x
 int16_t get_ax(void);
+
+// Gets the 2 bytes for the gyroscope's y
+int16_t get_gy()
+
 
 #endif

@@ -166,7 +166,7 @@ int who_am_i()
 	return i_am;
 }
 
-// only reads first byte of X Accel, full function is commented below
+// reads X Accelerometer
 int16_t get_ax()
 {
 	uint16_t i_am;
@@ -180,7 +180,7 @@ int16_t get_ax()
 		return i2c_error;
 
 	// TXDR is the next byte I would like to transmit
-	// 0x0F is the address of Who_am_i
+	// 0x28 is the address of X Accel
 	I2C1->TXDR = 0x28;
 
 	while(1)
@@ -231,75 +231,70 @@ int16_t get_ax()
 	return i_am;
 }
 
-/*
-//EXTI4_15_IRQHandler
-int get_data()
+// reads Y Gyroscope
+int16_t get_gy()
 {
-	// Read the Z and X on Accel, Z and Y on Gyro
-	int16_t remaining = 10;
-	int16_t in_data[10];
-	int16_t* point = &remaining;
-
-
+	uint16_t i_am;
 	I2C1->CR2 = (SLAVE << 1);
-	//Set 1 byte to send and RD_WRN to write (0);
-	I2C1->CR2 |= (0x01 << 16);
-	I2C1->CR2 &= ~(0x01 << 10);
-	I2C1->CR2 |= (0x01 << 13);	// Set Start Bit
-	
-	if(write_wait() == 1)
-		return error;	// Failed to connect, try again next time
+	//Set 1 bytes to send and RD_WRN to write (0);
+	I2C1->CR2 |= (0x1 << 16);
+	I2C1->CR2 &= ~(0x1 << 10);
+	I2C1->CR2 |= (0x1 << 13);	// Set Start Bit
 
-	//0x24 to request start of Y Gyro data
+	if(write_wait() == 1)
+		return i2c_error;
+
+	// TXDR is the next byte I would like to transmit
+	// 0x24 is the address of Y gyro
 	I2C1->TXDR = 0x24;
 
 	while(1)
-	{ // Wait for transfer complete. Bit 6 is 1 when I've sent the # of bytes I want
+	{ // Wait for transfer complete.
 		if(I2C1->ISR & I2C_ISR_TC)
 			break;
-	}			
-				
+	}
+
 	I2C1->CR2 = (SLAVE << 1);
-	//Set 10 bytes to read and RD_WRN to read (1);
-	//The first 6 bytes are the upper and lower bytes for the Y and Z of Gyro and X of Accel
-	//These six bytes are in contiguous registers
-	//The next 2 bytes are not being used, but it is quicker to read them and the last 2 as well
-	//The last 2 bytes are the Z of Accel
-	I2C1->CR2 |= (0xA << 16);
+	//Set 1 bytes to read and RD_WRN to read (1);
+	I2C1->CR2 |= (0x2 << 16);
 	I2C1->CR2 |= (0x1 << 10);
 	I2C1->CR2 |= (0x1 << 13);	// Set Start Bit
 				
-	while(remaining > 0)
+	while(1)
 	{
 		if(I2C1->ISR & I2C_ISR_RXNE)
 		{
-			remaining--;
-			in_data[remaining] = I2C1->RXDR;
+			break;
 		}
 		if(I2C1->ISR & I2C_ISR_NACKF)
 		{
 			I2C1->ISR |= I2C_ISR_NACKF; 	// to clear the bit
-			return error; // reading failed, so leave and try again next time
+			return i2c_error; // reading failed, so leave and try again next time
 		}
 	}
-	
+
+	i_am = I2C1->RXDR;
+
+	while(1)
+	{
+		if(I2C1->ISR & I2C_ISR_RXNE)
+		{
+			break;
+		}
+		if(I2C1->ISR & I2C_ISR_NACKF)
+		{
+			I2C1->ISR |= I2C_ISR_NACKF; 	// to clear the bit
+			return i2c_error; // reading failed, so leave and try again next time
+		}
+	}
+
+	i_am |= I2C1->RXDR << 8;
+
+	// could wait for transfer complete here, but probably don't need to
+
 	I2C1->CR2 |= (0x01 << 14);	//Set stop bit
-
-
-	// I read in the data as uint16_t, and I want interperet them as int16_t
-	// point is a pointer to int16_t and remaining is uint16_t, so I can just use those vars
-	remaining = in_data[9] | (in_data[8] << 8);	// 8 and 9 contain Y_Gyro
-	gyro_accel_data[0] = *point;
-	remaining = in_data[7] | (in_data[6] << 8);	// 6 and 7 contain Z Gyro
-	gyro_accel_data[1] = *point;
-	remaining = in_data[5] | (in_data[4] << 8);	// 5 and 4 contain X Accel
-	gyro_accel_data[2] = *point;	
-	remaining = in_data[1] | (in_data[0] << 8);	// 1 and 0 contain Z Accel
-	gyro_accel_data[3] = *point;
-
-	return 'X';
+	return i_am;
 }
-*/
 
 int write_wait()
 {
