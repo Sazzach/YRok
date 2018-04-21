@@ -1,16 +1,56 @@
 #include "pid.h"
+#include "uart.h"
+#include "imu_control.h"
 
 // for x axis
-volatile int32_t target_acceleration = 0;    // target acceleration
+volatile int32_t gyro_offset = 0xFFFFFDC3;
+
+volatile double angle = 0;
+volatile int32_t target_angle = 0;    // target angle
 volatile int32_t error = 0;         // error signal
 volatile int32_t error_integral = 0;    // integrated error signal
-volatile int32_t Kp = 40;            // proportional gain
-volatile int32_t Ki = 40;            // integral gain
+volatile int32_t Kp = 10;            // proportional gain
+volatile int32_t Ki = 0;            // integral gain
 volatile int32_t Kd = -0;            // derivative gain
 int32_t clamp = 25600;
 
+
+int calibrate_gyro() {
+  int gyro_sum = 0;
+
+  for (int i = 0; i < 1000; i++) {
+    HAL_Delay(1);
+    int gyro_y = get_gy();
+    gyro_sum += gyro_y;
+  }
+
+  gyro_offset = gyro_sum / 1000;
+
+  transmit_string("gyro: ");
+  transmit_hex(gyro_offset);
+  transmit_char('\r');
+  transmit_char('\n');
+}
+
+
 int PI_update(int32_t accel_x, int32_t gyro_y) {
-  error = target_acceleration - accel_x;
+  if (gyro_offset == -1) {
+    calibrate_gyro();
+  }
+
+  gyro_y -= gyro_offset;
+  gyro_y *= -1;
+
+  transmit_hex(accel_x);
+  transmit_char('\t');
+  transmit_hex(gyro_y);
+  transmit_char('\t');
+  angle = ((0.98) * (angle + (((gyro_y / 131.0) / 100.0))) + (0.02 * (accel_x / 182.0)));
+  transmit_hex(angle);
+  transmit_char('\r');
+  transmit_char('\n');
+
+  error = target_angle - angle;
 
   /// Calculate integral portion of PI controller, write to "error_integral" variable
   error_integral += Ki * error;

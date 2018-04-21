@@ -119,7 +119,7 @@ int main(void)
   {
     GPIOC->ODR ^= (0x1 << 15);
     int32_t accel_x = get_ax();
-	int32_t gyro_y = get_gy();
+    int32_t gyro_y = get_gy();
 
     int32_t pwm = PI_update(accel_x, gyro_y);
     if (pwm < 0) {
