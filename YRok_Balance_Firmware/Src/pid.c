@@ -1,16 +1,16 @@
-#include "stm32f0xx.h"
 #include "pid.h"
 
 // for x axis
-volatile int32_t target_acceleration = 400;    // target acceleration
+volatile int32_t target_acceleration = 0;    // target acceleration
 volatile int32_t error = 0;         // error signal
 volatile int32_t error_integral = 0;    // integrated error signal
-volatile uint8_t Kp = 40;            // proportional gain
-volatile uint8_t Ki = 40;            // integral gain
+volatile int32_t Kp = 40;            // proportional gain
+volatile int32_t Ki = 40;            // integral gain
+volatile int32_t Kd = -0;            // derivative gain
 int32_t clamp = 25600;
 
-int PI_update(int16_t measured_acceleration) {
-  error = target_acceleration - (int32_t) measured_acceleration;
+int PI_update(int32_t accel_x, int32_t gyro_y) {
+  error = target_acceleration - accel_x;
 
   /// Calculate integral portion of PI controller, write to "error_integral" variable
   error_integral += Ki * error;
@@ -30,7 +30,7 @@ int PI_update(int16_t measured_acceleration) {
   */
 
   /// Calculate proportional portion, add integral and write to "output" variable
-  int32_t output = Kp * error + error_integral;
+  int32_t output = Kp * error + error_integral + Kd * gyro_y;
 
   /* Because the calculated values for the PI controller are significantly larger than
   * the allowable range for duty cycle, you'll need to divide the result down into

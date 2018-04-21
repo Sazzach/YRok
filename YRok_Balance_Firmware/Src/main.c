@@ -118,8 +118,10 @@ int main(void)
   while (1)
   {
     GPIOC->ODR ^= (0x1 << 15);
-    int measured_acceleration = get_ax();
-    int pwm = PI_update(measured_acceleration);
+    int32_t accel_x = get_ax();
+	int32_t gyro_y = get_gy();
+
+    int32_t pwm = PI_update(accel_x, gyro_y);
     if (pwm < 0) {
       set_dir(MOTOR_LEFT, MOTOR_FORWARD);
       set_dir(MOTOR_RIGHT, MOTOR_FORWARD);
