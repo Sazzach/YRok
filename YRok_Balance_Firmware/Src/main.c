@@ -101,14 +101,15 @@ int main(void)
 //  MX_GPIO_Init();
 //  MX_TIM2_Init();
 //  MX_TIM3_Init();
-//
-//  TIM2->CNT = 0x7FFF;
+// //  TIM2->CNT = 0x7FFF;
 //  TIM3->CNT = 0x7FFF;
 
   transmit_string("Starting IMU_init\r\n");
   who_am = imu_init();
   transmit_char(who_am);
   transmit_char('\n');
+
+  wait_for_button();
 
   transmit_string("Starting motors");
   init_motors();
@@ -120,16 +121,18 @@ int main(void)
     int measured_acceleration = get_ax();
     int pwm = PI_update(measured_acceleration);
     if (pwm < 0) {
-      set_dir(MOTOR_LEFT, MOTOR_BACKWARD);
-      set_dir(MOTOR_RIGHT, MOTOR_BACKWARD);
+      set_dir(MOTOR_LEFT, MOTOR_FORWARD);
+      set_dir(MOTOR_RIGHT, MOTOR_FORWARD);
       set_speed(MOTOR_LEFT, -pwm);
       set_speed(MOTOR_RIGHT, -pwm);
     } else {
-      set_dir(MOTOR_LEFT, MOTOR_FORWARD);
-      set_dir(MOTOR_RIGHT, MOTOR_FORWARD);
+      set_dir(MOTOR_LEFT, MOTOR_BACKWARD);
+      set_dir(MOTOR_RIGHT, MOTOR_BACKWARD);
       set_speed(MOTOR_LEFT, pwm);
       set_speed(MOTOR_RIGHT, pwm);
-    }
+	}
+
+	HAL_Delay(1);
   }
 
 }

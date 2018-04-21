@@ -2,24 +2,25 @@
 #include "pid.h"
 
 // for x axis
-volatile int16_t target_acceleration = 0;    // target acceleration
-volatile int16_t error = 0;         // error signal
-volatile int16_t error_integral = 0;    // integrated error signal
-volatile uint8_t Kp = 10;            // proportional gain
-volatile uint8_t Ki = 5;            // integral gain
+volatile int32_t target_acceleration = 400;    // target acceleration
+volatile int32_t error = 0;         // error signal
+volatile int32_t error_integral = 0;    // integrated error signal
+volatile uint8_t Kp = 40;            // proportional gain
+volatile uint8_t Ki = 40;            // integral gain
+int32_t clamp = 25600;
 
 int PI_update(int16_t measured_acceleration) {
-  error = target_acceleration - measured_acceleration;
+  error = target_acceleration - (int32_t) measured_acceleration;
 
   /// Calculate integral portion of PI controller, write to "error_integral" variable
   error_integral += Ki * error;
 
   /// Clamp the value of the integral to a limited positive range
-  if (error_integral < 0) {
-    error_integral = 0;
+  if (error_integral < -clamp) {
+    error_integral = -clamp;
   }
-  if (error_integral > 3200) {
-    error_integral = 3200;
+  if (error_integral > clamp) {
+    error_integral = clamp;
   }
 
   /* Hint: The value clamp is needed to prevent excessive "windup" in the integral.
@@ -29,7 +30,7 @@ int PI_update(int16_t measured_acceleration) {
   */
 
   /// Calculate proportional portion, add integral and write to "output" variable
-  int16_t output = Kp * error + error_integral;
+  int32_t output = Kp * error + error_integral;
 
   /* Because the calculated values for the PI controller are significantly larger than
   * the allowable range for duty cycle, you'll need to divide the result down into
@@ -48,7 +49,7 @@ int PI_update(int16_t measured_acceleration) {
   */
 
   /// Divide the output into the proper range for output adjustment
-  output /= 32;
+  output /= 256;
 
   /// Clamp the output value between 0 and 100
   if (output < -100) {
