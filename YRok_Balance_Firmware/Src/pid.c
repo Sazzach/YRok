@@ -6,12 +6,12 @@
 volatile int32_t gyro_offset = 0xFFFFFDC3;
 
 volatile double angle = 0;
-double angle_offset = 2.5;
+double angle_offset = 5.5;
 volatile int32_t target_angle = 0;    // target angle
 volatile int32_t error = 0;         // error signal
 volatile int32_t error_integral = 0;    // integrated error signal
-volatile int32_t Kp = 700;            // proportional gain
-volatile int32_t Ki = 10;            // integral gain
+volatile int32_t Kp = 1450;            // proportional gain
+volatile int32_t Ki = 45;            // integral gain
 volatile int32_t Kd = -0;            // derivative gain
 int32_t clamp = 6400;
 
