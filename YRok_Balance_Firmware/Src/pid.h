@@ -8,4 +8,6 @@
  */
 int PI_update(int32_t accel_x, int32_t gyro_y);
 
+void init_pid();
+
 #endif

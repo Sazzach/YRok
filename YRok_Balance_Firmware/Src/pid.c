@@ -1,20 +1,23 @@
 #include "pid.h"
 #include "uart.h"
 #include "imu_control.h"
+#include "motor.h"
+
+// Hz
+#define PID_FREQ 1000
 
 // for x axis
 volatile int32_t gyro_offset = 0xFFFFFDC3;
 
-volatile double angle = 0;
-double angle_offset = 5.5;
+volatile double angle = -1;
+double angle_offset = 0;
 volatile int32_t target_angle = 0;    // target angle
 volatile int32_t error = 0;         // error signal
 volatile int32_t error_integral = 0;    // integrated error signal
-volatile int32_t Kp = 1450;            // proportional gain
-volatile int32_t Ki = 45;            // integral gain
-volatile int32_t Kd = -0;            // derivative gain
-int32_t clamp = 6400;
-
+volatile int32_t Kp = 800;            // proportional gain
+volatile int32_t Ki = 10;            // integral gain
+volatile int32_t Kd = 0;            // derivative gain
+int32_t clamp = 3200;
 
 int calibrate_gyro() {
   int gyro_sum = 0;
@@ -33,6 +36,18 @@ int calibrate_gyro() {
   transmit_char('\n');
 }
 
+void init_pid() {
+  RCC->APB1ENR |= RCC_APB1ENR_TIM6EN;
+
+  TIM6->DIER |= TIM_DIER_UIE;
+  TIM6->PSC = 47;
+  TIM6->ARR = HAL_RCC_GetHCLKFreq() / (PID_FREQ * 48);
+
+  NVIC_EnableIRQ(TIM6_DAC_IRQn);
+  NVIC_SetPriority(TIM6_DAC_IRQn, 0);
+
+  TIM6->CR1 |= TIM_CR1_CEN;
+}
 
 int PI_update(int32_t accel_x, int32_t gyro_y) {
   if (gyro_offset == -1) {
@@ -103,3 +118,20 @@ int PI_update(int32_t accel_x, int32_t gyro_y) {
   return output;
 }
 
+void TIM6_DAC_IRQHandler(void) {
+  int32_t accel_x = get_ax();
+  int32_t gyro_y = get_gy();
+
+  int32_t pwm = PI_update(accel_x, gyro_y);
+  if (pwm < 0) {
+    set_dir(MOTOR_LEFT, MOTOR_FORWARD);
+    set_dir(MOTOR_RIGHT, MOTOR_FORWARD);
+    set_speed(MOTOR_LEFT, -pwm);
+    set_speed(MOTOR_RIGHT, -pwm);
+  } else {
+    set_dir(MOTOR_LEFT, MOTOR_BACKWARD);
+    set_dir(MOTOR_RIGHT, MOTOR_BACKWARD);
+    set_speed(MOTOR_LEFT, pwm);
+    set_speed(MOTOR_RIGHT, pwm);
+  }
+}

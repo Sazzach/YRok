@@ -108,36 +108,23 @@ int main(void)
   transmit_string("Starting IMU_init\r\n");
   who_am = imu_init();
   transmit_char(who_am);
-  transmit_char('\n');
+  transmit_string("\r\n");
 
   wait_for_button();
 
-  transmit_string("Starting motors");
+  transmit_string("Starting motors\r\n");
   init_motors();
   enable_motors();
+
+  transmit_string("Starting pid");
+  init_pid();
 
   while (1)
   {
     GPIOC->ODR ^= (0x1 << 15);
-    int32_t accel_x = get_ax();
-    int32_t gyro_y = get_gy();
 
-    int32_t pwm = PI_update(accel_x, gyro_y);
-    if (pwm < 0) {
-      set_dir(MOTOR_LEFT, MOTOR_FORWARD);
-      set_dir(MOTOR_RIGHT, MOTOR_FORWARD);
-      set_speed(MOTOR_LEFT, -pwm);
-      set_speed(MOTOR_RIGHT, -pwm);
-    } else {
-      set_dir(MOTOR_LEFT, MOTOR_BACKWARD);
-      set_dir(MOTOR_RIGHT, MOTOR_BACKWARD);
-      set_speed(MOTOR_LEFT, pwm);
-      set_speed(MOTOR_RIGHT, pwm);
-	}
-
-	HAL_Delay(1);
+	HAL_Delay(500);
   }
-
 }
 
 /** System Clock Configuration
