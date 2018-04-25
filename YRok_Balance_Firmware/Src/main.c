@@ -116,14 +116,26 @@ int main(void)
   init_motors();
   enable_motors();
 
-  transmit_string("Starting pid");
+  transmit_string("Starting pid\r\n");
   init_pid();
 
   while (1)
   {
+    char* command = get_command();
+
+    if (string_compare(command, "f")) {
+      // TODO set velocity pid to forward
+    }
+    if (string_compare(command, "b")) {
+      // TODO set velocity pid to backward
+    }
+    if (string_compare(command, "n")) {
+      // TODO set velocity pid to neutral/0
+    }
+
     GPIOC->ODR ^= (0x1 << 15);
 
-	HAL_Delay(500);
+    HAL_Delay(500);
   }
 }
 

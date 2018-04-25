@@ -34,6 +34,8 @@ int calibrate_gyro() {
   transmit_hex(gyro_offset);
   transmit_char('\r');
   transmit_char('\n');
+
+  return 0;
 }
 
 void init_pid() {
