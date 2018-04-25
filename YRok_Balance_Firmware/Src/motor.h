@@ -15,6 +15,6 @@ void enable_motors();
 void disable_motors();
 
 void set_dir(int32_t motor, int32_t dir);
-void set_speed(int32_t motor, uint32_t speed);
+void set_speed(int32_t motor, int32_t speed);
 
 #endif

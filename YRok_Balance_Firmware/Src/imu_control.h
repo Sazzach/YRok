@@ -34,5 +34,7 @@ int16_t get_ax(void);
 // Gets the 2 bytes for the gyroscope's y
 int16_t get_gy();
 
+// Gets the 2 bytes for the gyroscope's z
+int16_t get_gz();
 
 #endif
