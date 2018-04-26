@@ -23,6 +23,7 @@ tab_width = 2.96;
 tab_height = 5.10;
 tab_length = tab_height;
 tab_hole_d = 2.50;
+tab_jog = 11.32;
 
 axle_d = 5.48;
 axle_flat_w = 3.75;
@@ -81,6 +82,11 @@ function ym_end_axle_len() = end_axle_len;
 function ym_tab_width() = tab_length;
 function ym_tab_th() = tab_width;
 function ym_tab_height() = tab_height;
+function ym_tab_jog() = tab_jog;
+
+function ym_dot_d() = 4.08;
+function ym_dot_th() = 20.26 - body_width;
+function ym_dot_offset() = 22.20;
 
 ////////////////////////////////////////
 
@@ -120,7 +126,8 @@ module yellow_motor() {
 	// tab section
 	color([1, 1, 0])
 	render()
-	translate([-tab_length/2, body_width/2, body_height/2])
+	//translate([-tab_length/2, body_width/2, body_height/2])
+	translate([-tab_length/2, tab_jog - tab_width, body_height/2])
 	xrot(90)
 	difference() {
 		cube([tab_length, tab_height, tab_width], center=true);
