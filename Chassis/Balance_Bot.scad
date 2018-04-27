@@ -7,7 +7,7 @@ use <Yellow_Motor.scad>
 use <Encoder.scad>
 
 // Material thickness
-th = 5.588;
+th = 5.3;
 
 // Tolerance of holes
 tol = 0;
@@ -19,16 +19,18 @@ pi_th = 60;
 pi_height = 25;
 pi_hole_x_sep = 58;
 pi_hole_y_sep = 49;
-pi_hole_d = 2.37;
+pi_hole_d = 2.39;
 standoff_height = 15.5 - th;
 
-screw_d = 3.37;
+screw_d = 3.35;
 screw_l = 20;
-nut_w = 7.80;
+nut_w = 7.87;
 nut_diag_w = 8.88;
-nut_th = 2.83;
+nut_th = 2.73;
 
-m3_d = 3;
+camera_screw_d = 1.4;
+
+m3_d = 2.9;
 
 laser_d = 12.07;
 
@@ -36,13 +38,10 @@ battery_length = 101.23;
 battery_th = 15.11;
 battery_width = 57.14;
 
-robot_height = 180;
-
-//CHECK make sure pi wont hit screws.
 robot_width = pi_width + th*4 + 4;
 robot_th = 60;
 
-middle_h = 50;
+middle_h = 60;
 
 motor_sep = 30;
 
@@ -60,24 +59,84 @@ wheel_offset = 29 - wheel_th;
 tab_length = th*3;
 tab_width = th;
 
-motor_screw_hole_offset = ym_screw_hole_offset() - ym_axle_pos()[0] + robot_inner_th/2;
+motor_screw_hole_offset = ym_screw_hole_offset() - ym_axle_pos()[2] + robot_inner_th/2;
+dot_hole_offset = ym_dot_offset() - ym_axle_pos()[2] + robot_inner_th/2;
 
-// todo: find m3 screws 25mm ish. Or maybe longer if 1/4" material.
+// TODO: find m3 screws 25mm ish. Or maybe longer if 1/4" material.
 
-assembly();
-//middle_platform();
+//assembly();
+
+//base();
+//inner_middle(front = true);
 //inner_side();
+//middle_platform();
+middle_sides();
+//laser_holder();
+
+//top();
+
 //screw_neg();
-//inner_middle();
+
+
+//translate([0, -tab_length-1])
+//test_cuts1(all = true);
+
+//test_cuts2();
+
+module test_cuts1(all = true, holes = false) {
+	l = tab_length + th*2;
+	w = tab_width + th*2;
+
+	if(all) {
+		difference() {
+			test_cuts1(all = false, holes = false);
+			test_cuts1(all = false, holes = true);
+		}
+	}
+	else if(holes) {
+		square([tab_length, tab_width], center=true);
+
+		translate([(tab_length/2 + th/2), (tab_width/2 + th/2)])
+		circle(d = screw_d, $fn = small_rad_frags);
+
+		translate([-(tab_length/2 + th/2), (tab_width/2 + th/2)])
+		circle(d = m3_d, $fn = small_rad_frags);
+
+		translate([(tab_length/2 + th/2), -(tab_width/2 + th/2)])
+		circle(d = pi_hole_d, $fn = small_rad_frags);
+
+		translate([-(tab_length/2 + th/2), -(tab_width/2 + th/2)])
+		circle(d = camera_screw_d, $fn = small_rad_frags);
+	}
+	else {
+		square([l, w], center=true);
+	}
+}
+
+module test_cuts2() {
+	l = tab_length + th*2;
+	w = tab_width + th*2;
+
+	difference() {
+		square([l, w], center=true);
+
+		translate([0, -w/2])
+		rotate(180)
+		screw_neg();
+	}
+
+	translate([-tab_length/2, w/2])
+	square([tab_length, tab_width]);
+}
 
 module assembly() {
-	xflip_copy()
+	//xflip_copy()
 	translate([ym_width() + motor_sep/2, 0, 0]) {
 		translate([0, ym_axle_pos()[2], 0])
 		rotate([0, -90, 90])
 		motor_assembly();
 
-		color([0.9, 0.7, 0.2])
+		#color([0.9, 0.7, 0.2])
 		translate([-ym_width(), 0, 0])
 		yrot(-90)
 		linear_extrude(th)
@@ -86,9 +145,15 @@ module assembly() {
 
 	yflip_copy()
 	translate([0, -ym_height()/2, 0]) {
-		xrot(90)
-		linear_extrude(th)
-		inner_middle(front = true);
+		xrot(90) {
+			linear_extrude(th)
+			inner_middle(front = true);
+
+			color([1, 1, .5])
+			translate([0, screw_l + laser_d/2, -th])
+			linear_extrude(th)
+			laser_holder();
+		}
 	}
 
 	color([1, 1, .5])
@@ -221,21 +286,41 @@ module middle_platform() {
 		xflip_copy()
 		yflip_copy()
 		translate([25/2 - corner_radius, robot_inner_th/2 - th - corner_radius])
-		circle(r = corner_radius);
+		circle(r = corner_radius, $fn = small_rad_frags);
 
 		hull()
 		xflip_copy()
 		translate([(17 - 2)/2, robot_inner_th/2 + th + 1 + 3])
-		circle(d = 2);
+		circle(d = 2, $fn = small_rad_frags);
 
 		hull()
 		xflip_copy()
 		translate([(7 - 2)/2, -(robot_inner_th/2 + th + 1 + 3)])
-		circle(d = 2);
+		circle(d = 2, $fn = small_rad_frags);
 	}
 }
 
-// TODO laser holder part
+module laser_holder() {
+	difference() {
+		union() {
+			hull() {
+				translate([0, laser_d/2 + 4/2 + th])
+				circle(d = m3_d + th*2, $fn = small_rad_frags);
+
+				translate([0, 1])
+				square([m3_d + th*2, 2], center=true);
+			}
+		}
+
+		translate([0, laser_d/2 + 4/2 + th])
+		circle(d = m3_d, $fn = small_rad_frags);
+
+		circle(d = laser_d, $fn = small_rad_frags);
+
+		translate([-laser_d, -laser_d*3/4])
+		square([laser_d*2, laser_d]);
+	}
+}
 
 module inner_middle(front = false) {
 	difference() {
@@ -243,8 +328,6 @@ module inner_middle(front = false) {
 			translate([-robot_inner_m_w/2, 0])
 			square([robot_inner_m_w, robot_inner_h]);
 
-			//TODO make inner corner round
-			// try minowski
 			hull() {
 				xflip_copy() {
 					translate([-tw/2, robot_inner_h-1])
@@ -288,8 +371,6 @@ module inner_middle(front = false) {
 		circle(d = m3_d, $fn = small_rad_frags);
 
 		if(front) {
-			camera_screw_d = 1.4;
-
 			translate([0, -12.5/2 + robot_inner_h - 7])
 			xflip_copy()
 			yflip_copy()
@@ -314,14 +395,17 @@ module inner_side() {
 			}
 		}
 
-		//TODO make holes proper size
-		translate([robot_inner_th/2, 0])
-		circle(d = ym_axle_d(), $fn = small_rad_frags);
+		translate([ym_axle_pos()[0], 0])
+		circle(d = ym_axle_d() + 2, $fn = small_rad_frags);
 
 		// M3 fits well
 		yflip_copy()
 		translate([motor_screw_hole_offset, ym_screw_hole_spacing()/2])
-		circle(d = ym_screw_hole_d(), $fn = small_rad_frags);
+		circle(d = m3_d, $fn = small_rad_frags);
+
+		// dot
+		translate([dot_hole_offset, 0])
+		circle(d = ym_dot_d()+1, $fn = small_rad_frags);
 	}
 }
 
@@ -339,7 +423,7 @@ module base() {
 		}
 
 		xflip_copy()
-		translate([motor_sep/2 + ym_width()/2, 0])
+		translate([motor_sep/2 + ym_width() - ym_tab_jog() + ym_tab_width()/2 + 0.4, 0])
 		square([ym_tab_th(), ym_tab_width()], center=true);
 
 		yflip_copy() {
@@ -403,4 +487,7 @@ module motor_assembly() {
 	%translate(ym_axle_pos() + [0, -wheel_offset, 0])
 	xrot(90)
 	cylinder(d = wheel_d, h = wheel_th);
+}
+
+module test_pane() {
 }

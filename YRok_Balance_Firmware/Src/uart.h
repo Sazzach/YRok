@@ -4,9 +4,10 @@
 #include "stm32f0xx.h"
 
 /*
- * buffer to read from when uart_data is high/ready
+ * command to parse from when uart_data is high/ready
  */
-extern char buffer[7];
+#define BUFFER_SIZE 1024
+extern char command[BUFFER_SIZE];
 /*
  * signals when the buffer can be read (after a newline is read)
  */
@@ -26,6 +27,18 @@ void transmit_string(char *s);
  * transmit hex over the uart
  */
 void transmit_hex(uint32_t hex);
+
+/*
+ * returns a boolean depending on whether c1 and c2 (null terminated strings)
+ * are equal
+ */
+int string_compare(char* c1, char* c2);
+
+/*
+ * returns a pointer to a null terminated string that won't change until the
+ * next call to get_command
+ */
+char* get_command(void);
 
 /*
  * initialize the uart

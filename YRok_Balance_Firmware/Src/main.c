@@ -120,17 +120,26 @@ int main(void)
   init_motors();
   enable_motors();
 
-  transmit_string("Starting pid");
+  transmit_string("Starting pid\r\n");
   init_pid();
 
   char pbuf[100];
-
   while (1)
   {
     GPIOC->ODR ^= (0x1 << 15);
 
-    sprintf(pbuf, "orientation: %f", orientation);
-    transmit_string(pbuf);
+    char* command = get_command();
+
+    if (string_compare(command, "f")) {
+      // TODO set velocity pid to forward
+    }
+    if (string_compare(command, "b")) {
+      // TODO set velocity pid to backward
+    }
+    if (string_compare(command, "n")) {
+      // TODO set velocity pid to neutral/0
+    }
+
 
     sprintf(pbuf, "\tangle: %f", angle);
     transmit_string(pbuf);
