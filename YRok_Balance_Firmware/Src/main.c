@@ -93,17 +93,21 @@ int main(void)
   HAL_Init();
   SystemClock_Config();
 
-
   init_usr_led();
 
   init_uart();
-	transmit_string("RESET\r\n");
+  transmit_string("RESET\r\n");
 
-//  MX_GPIO_Init();
-//  MX_TIM2_Init();
-//  MX_TIM3_Init();
-// //  TIM2->CNT = 0x7FFF;
-//  TIM3->CNT = 0x7FFF;
+  MX_GPIO_Init();
+
+  MX_TIM2_Init();
+  MX_TIM3_Init();
+
+  TIM2->CNT = 0x7FFF;
+  TIM3->CNT = 0x7FFF;
+
+  TIM2->CR1 |= TIM_CR1_CEN;
+  TIM3->CR1 |= TIM_CR1_CEN;
 
   transmit_string("Starting IMU_init\r\n");
   who_am = imu_init();
@@ -119,8 +123,11 @@ int main(void)
   transmit_string("Starting pid\r\n");
   init_pid();
 
+  char pbuf[100];
   while (1)
   {
+    GPIOC->ODR ^= (0x1 << 15);
+
     char* command = get_command();
 
     if (string_compare(command, "f")) {
@@ -133,7 +140,14 @@ int main(void)
       // TODO set velocity pid to neutral/0
     }
 
-    GPIOC->ODR ^= (0x1 << 15);
+
+    sprintf(pbuf, "\tangle: %f", angle);
+    transmit_string(pbuf);
+
+    sprintf(pbuf, "\tpos: %d", en_pos);
+    transmit_string(pbuf);
+
+    transmit_string("\r\n");
 
     HAL_Delay(500);
   }
@@ -146,6 +160,7 @@ void SystemClock_Config(void)
 
   RCC_OscInitTypeDef RCC_OscInitStruct;
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
+  RCC_PeriphCLKInitTypeDef PeriphClkInit;//////
 
     /**Initializes the CPU, AHB and APB busses clocks 
     */
@@ -169,6 +184,13 @@ void SystemClock_Config(void)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
+
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_I2C1;////
+  PeriphClkInit.I2c1ClockSelection = RCC_I2C1CLKSOURCE_SYSCLK;////
+  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)////
+  {////
+    _Error_Handler(__FILE__, __LINE__);////
+  }////
 
     /**Configure the Systick interrupt time 
     */
@@ -195,15 +217,15 @@ static void MX_TIM2_Init(void)
   htim2.Init.Period = 0xFFFF;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  sConfig.EncoderMode = TIM_ENCODERMODE_TI12;
-  sConfig.IC1Polarity = TIM_ICPOLARITY_BOTHEDGE;
+  sConfig.EncoderMode = TIM_ENCODERMODE_TI1;
+  sConfig.IC1Polarity = TIM_ICPOLARITY_RISING;
   sConfig.IC1Selection = TIM_ICSELECTION_DIRECTTI;
   sConfig.IC1Prescaler = TIM_ICPSC_DIV1;
-  sConfig.IC1Filter = 0;
-  sConfig.IC2Polarity = TIM_ICPOLARITY_BOTHEDGE;
+  sConfig.IC1Filter = 0x0;
+  sConfig.IC2Polarity = TIM_ICPOLARITY_RISING;
   sConfig.IC2Selection = TIM_ICSELECTION_DIRECTTI;
   sConfig.IC2Prescaler = TIM_ICPSC_DIV1;
-  sConfig.IC2Filter = 0;
+  sConfig.IC2Filter = 0x0;
   if (HAL_TIM_Encoder_Init(&htim2, &sConfig) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
@@ -231,15 +253,15 @@ static void MX_TIM3_Init(void)
   htim3.Init.Period = 0xFFFF;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  sConfig.EncoderMode = TIM_ENCODERMODE_TI12;
-  sConfig.IC1Polarity = TIM_ICPOLARITY_BOTHEDGE;
+  sConfig.EncoderMode = TIM_ENCODERMODE_TI1;
+  sConfig.IC1Polarity = TIM_ICPOLARITY_RISING;
   sConfig.IC1Selection = TIM_ICSELECTION_DIRECTTI;
   sConfig.IC1Prescaler = TIM_ICPSC_DIV1;
-  sConfig.IC1Filter = 0;
-  sConfig.IC2Polarity = TIM_ICPOLARITY_BOTHEDGE;
+  sConfig.IC1Filter = 0x0;
+  sConfig.IC2Polarity = TIM_ICPOLARITY_RISING;
   sConfig.IC2Selection = TIM_ICSELECTION_DIRECTTI;
   sConfig.IC2Prescaler = TIM_ICPSC_DIV1;
-  sConfig.IC2Filter = 0;
+  sConfig.IC2Filter = 0x0;
   if (HAL_TIM_Encoder_Init(&htim3, &sConfig) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);

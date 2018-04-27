@@ -4,45 +4,75 @@
 #include "motor.h"
 
 // Hz
-#define PID_FREQ 1000
+#define PID_FREQ 500 
 
 // for x axis
-volatile int32_t gyro_offset = 0xFFFFFDC3;
+volatile int32_t gyro_y_offset = 0xFFFFFDC3;
+volatile int32_t gyro_z_offset = 0xFFFFFF9A;
 
 volatile double angle = -1;
 double angle_offset = 0;
-volatile int32_t target_angle = 0;    // target angle
+volatile double target_angle = 0;    // target angle
 volatile int32_t error = 0;         // error signal
 volatile int32_t error_integral = 0;    // integrated error signal
-volatile int32_t Kp = 800;            // proportional gain
-volatile int32_t Ki = 10;            // integral gain
-volatile int32_t Kd = 0;            // derivative gain
+volatile int32_t Kp = 900;            // proportional gain
+volatile int32_t Ki = 15;            // integral gain
+volatile double Kd = -20;            // derivative gain
 int32_t clamp = 3200;
+volatile int d_filtered = 0;
 
-int calibrate_gyro() {
-  int gyro_sum = 0;
+volatile double Kp2 = 5;
+volatile double Ki2 = 0.01;
+//volatile double Kd2 = 0;
+volatile double target_speed = 0;
+volatile double error_integral2 = 0;
+volatile double speed = 0;
+volatile double clamp2 = 1;
+volatile double out_clamp2 = 5;
+volatile int en_pos = 0;
+
+volatile double orientation = 0;
+volatile double target_orientation = 0;
+volatile double Kp_o = 15;
+volatile int o_clamp = 35; 
+
+void calibrate_gyro() {
+  int gyro_y_sum = 0;
+  int gyro_z_sum = 0;
 
   for (int i = 0; i < 1000; i++) {
     HAL_Delay(1);
     int gyro_y = get_gy();
-    gyro_sum += gyro_y;
+    int gyro_z = get_gz();
+
+    gyro_y_sum += gyro_y;
+    gyro_z_sum += gyro_z;
   }
 
-  gyro_offset = gyro_sum / 1000;
+  gyro_y_offset = gyro_y_sum / 1000;
+  gyro_z_offset = gyro_z_sum / 1000;
 
-  transmit_string("gyro: ");
-  transmit_hex(gyro_offset);
-  transmit_char('\r');
-  transmit_char('\n');
+  transmit_string("gyro y offset: ");
+  transmit_hex(gyro_y_offset);
+  transmit_string("\r\n");
 
-  return 0;
+  transmit_string("gyro z offset: ");
+  transmit_hex(gyro_z_offset);
+  transmit_string("\r\n");
 }
 
 void init_pid() {
+  if(gyro_y_offset == -1 || gyro_z_offset == -1) {
+  	calibrate_gyro();
+  }
+
+  RCC->AHBENR |= RCC_AHBENR_GPIOBEN; // For profiling
+  GPIOB->MODER |= (1 << 9*2); // For profiling
+
   RCC->APB1ENR |= RCC_APB1ENR_TIM6EN;
 
   TIM6->DIER |= TIM_DIER_UIE;
-  TIM6->PSC = 47;
+  TIM6->PSC = 48;
   TIM6->ARR = HAL_RCC_GetHCLKFreq() / (PID_FREQ * 48);
 
   NVIC_EnableIRQ(TIM6_DAC_IRQn);
@@ -52,11 +82,7 @@ void init_pid() {
 }
 
 int PI_update(int32_t accel_x, int32_t gyro_y) {
-  if (gyro_offset == -1) {
-    calibrate_gyro();
-  }
-
-  gyro_y -= gyro_offset;
+  gyro_y -= gyro_y_offset;
   gyro_y *= -1;
 
   //transmit_hex(accel_x);
@@ -81,30 +107,10 @@ int PI_update(int32_t accel_x, int32_t gyro_y) {
     error_integral = clamp;
   }
 
-  /* Hint: The value clamp is needed to prevent excessive "windup" in the integral.
-  *       You'll read more about this for the post-lab. The exact value is arbitrary
-  *       but affects the PI tuning.
-  *       Recommend that you clamp between 0 and 3200 (what is used in the lab solution)
-  */
+  d_filtered = (d_filtered * 7) / 8 + gyro_y / 8;
 
   /// Calculate proportional portion, add integral and write to "output" variable
-  int32_t output = Kp * error + error_integral + Kd * gyro_y;
-
-  /* Because the calculated values for the PI controller are significantly larger than
-  * the allowable range for duty cycle, you'll need to divide the result down into
-  * an appropriate range. (Maximum integral clamp / X = 100% duty cycle)
-  *
-  * Hint: If you chose 3200 for the integral clamp you should divide by 32 (right shift by 5 bits),
-  *       this will give you an output of 100 at maximum integral "windup".
-  *
-  * This division also turns the above calculations into pseudo fixed-point. This is because
-  * the lowest 5 bits act as if they were below the decimal point until the division where they
-  * were truncated off to result in an integer value.
-  *
-  * Technically most of this is arbitrary, in a real system you would want to use a fixed-point
-  * math library. The main difference that these values make is the difference in the gain values
-  * required for tuning.
-  */
+  int32_t output = Kp * error + error_integral + Kd * (d_filtered / 131.0);
 
   /// Divide the output into the proper range for output adjustment
   output /= 64;
@@ -120,20 +126,72 @@ int PI_update(int32_t accel_x, int32_t gyro_y) {
   return output;
 }
 
+void PI_update2() {
+  int32_t d_dist = TIM2->CNT - 0x7FFF;
+  TIM2->CNT = 0x7FFF;
+  speed = speed * 0.95 + d_dist * 0.05;
+  en_pos += d_dist;
+
+  double error2 = target_speed - speed;
+
+  error_integral2 += Ki2 * error2;
+
+  if(error_integral2 > clamp2) {
+  	error_integral2 = clamp2;
+  }
+  if(error_integral2 < -clamp2) {
+  	error_integral2 = -clamp2;
+  }
+
+  double output = Kp2 * error2 + Ki2 * error_integral2;
+  if(output > out_clamp2) {
+  	output = out_clamp2;
+  }
+  if(output < -out_clamp2) {
+  	output = -out_clamp2;
+  }
+
+  target_angle = output;
+}
+
+int orientation_update(int32_t gyro_z) {
+	gyro_z -= gyro_z_offset;
+	orientation = orientation + gyro_z * (0.004375) / 250.0;
+
+	double error_orientation = target_orientation - orientation;
+
+	int output = (int) (error_orientation * Kp_o);
+
+	if(output > o_clamp) {
+		output = o_clamp;
+	}
+	if(output < -o_clamp) {
+		output = -o_clamp;
+	}
+
+	return output;
+}
+
 void TIM6_DAC_IRQHandler(void) {
+  GPIOB->ODR |= (1 << 9); // For profiling
   int32_t accel_x = get_ax();
   int32_t gyro_y = get_gy();
+  int32_t gyro_z = get_gz();
 
-  int32_t pwm = PI_update(accel_x, gyro_y);
-  if (pwm < 0) {
-    set_dir(MOTOR_LEFT, MOTOR_FORWARD);
-    set_dir(MOTOR_RIGHT, MOTOR_FORWARD);
-    set_speed(MOTOR_LEFT, -pwm);
-    set_speed(MOTOR_RIGHT, -pwm);
-  } else {
-    set_dir(MOTOR_LEFT, MOTOR_BACKWARD);
-    set_dir(MOTOR_RIGHT, MOTOR_BACKWARD);
-    set_speed(MOTOR_LEFT, pwm);
-    set_speed(MOTOR_RIGHT, pwm);
-  }
+  int turn = orientation_update(gyro_z);
+  //turn *= 5;
+
+  PI_update2();
+
+  int32_t pwm_l = -PI_update(accel_x, gyro_y);
+  int32_t pwm_r = pwm_l;
+
+  pwm_l -= turn;
+  pwm_r += turn;
+
+  set_speed(MOTOR_LEFT, pwm_l);
+  set_speed(MOTOR_RIGHT, pwm_r);
+
+  GPIOB->ODR &= ~(1 << 9); // For profiling
+  TIM6->SR &= ~TIM_SR_UIF;
 }

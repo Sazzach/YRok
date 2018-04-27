@@ -36,6 +36,7 @@ int imu_init()
 	// Configure the timing register for 400 KHz (fast mode) from the 48MHz clock
 	// PRESC to 0x5, SCLDEL to 0x3, SDADEL to 0x3, SCLH to 0x3, SCLL to 0x9
 	I2C1->TIMINGR |= (0x5 << 28) | (0x3 << 20) | (0x3 << 16) | (0x3 << 8) | (0x9);	
+	//I2C1->TIMINGR |= (0x0 << 28) | (0x3 << 20) | (0x1 << 16) | (0x3 << 8) | (0x9);	
 	I2C1->CR1 |= 0x01;	// Enable I2C1 with PE bit
 
 	// Now to init configure the IMU
@@ -247,6 +248,71 @@ int16_t get_gy()
 	// TXDR is the next byte I would like to transmit
 	// 0x24 is the address of Y gyro
 	I2C1->TXDR = 0x24;
+
+	while(1)
+	{ // Wait for transfer complete.
+		if(I2C1->ISR & I2C_ISR_TC)
+			break;
+	}
+
+	I2C1->CR2 = (SLAVE << 1);
+	//Set 1 bytes to read and RD_WRN to read (1);
+	I2C1->CR2 |= (0x2 << 16);
+	I2C1->CR2 |= (0x1 << 10);
+	I2C1->CR2 |= (0x1 << 13);	// Set Start Bit
+				
+	while(1)
+	{
+		if(I2C1->ISR & I2C_ISR_RXNE)
+		{
+			break;
+		}
+		if(I2C1->ISR & I2C_ISR_NACKF)
+		{
+			I2C1->ISR |= I2C_ISR_NACKF; 	// to clear the bit
+			return i2c_error; // reading failed, so leave and try again next time
+		}
+	}
+
+	i_am = I2C1->RXDR;
+
+	while(1)
+	{
+		if(I2C1->ISR & I2C_ISR_RXNE)
+		{
+			break;
+		}
+		if(I2C1->ISR & I2C_ISR_NACKF)
+		{
+			I2C1->ISR |= I2C_ISR_NACKF; 	// to clear the bit
+			return i2c_error; // reading failed, so leave and try again next time
+		}
+	}
+
+	i_am |= I2C1->RXDR << 8;
+
+	// could wait for transfer complete here, but probably don't need to
+
+	I2C1->CR2 |= (0x01 << 14);	//Set stop bit
+	return i_am;
+}
+
+// reads Z Gyroscope
+int16_t get_gz()
+{
+	uint16_t i_am;
+	I2C1->CR2 = (SLAVE << 1);
+	//Set 1 bytes to send and RD_WRN to write (0);
+	I2C1->CR2 |= (0x1 << 16);
+	I2C1->CR2 &= ~(0x1 << 10);
+	I2C1->CR2 |= (0x1 << 13);	// Set Start Bit
+
+	if(write_wait() == 1)
+		return i2c_error;
+
+	// TXDR is the next byte I would like to transmit
+	// 0x26 is the address of Z gyro
+	I2C1->TXDR = 0x26;
 
 	while(1)
 	{ // Wait for transfer complete.

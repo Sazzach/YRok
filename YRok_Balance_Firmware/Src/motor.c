@@ -102,8 +102,20 @@ void set_dir(int32_t motor, int32_t dir)
   }
 }
 
-void set_speed(int32_t motor, uint32_t speed)
+void set_speed(int32_t motor, int32_t speed)
 {
+  if(speed > 0) {
+    set_dir(motor, MOTOR_FORWARD);
+  }
+  else {
+    set_dir(motor, MOTOR_BACKWARD);
+    speed = -speed;
+  }
+
+  if(speed > 100) {
+    speed = 100;
+  }
+
   uint32_t tim_speed = (TIM15->ARR / 100) * speed;
 
   if(motor == 1)
