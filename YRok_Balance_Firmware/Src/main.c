@@ -71,14 +71,17 @@ static void MX_TIM3_Init(void);
 
 void init_usr_led()
 {
+  // enable the peripheral
   RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
 
+  // init the usr led
   GPIOC->MODER |= (0x1 << 15*2);
   GPIOC->ODR |= (0x1 << 15);
 }
 
 void wait_for_button()
 {
+  // wait for a button press
   RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
 
   while(!(GPIOC->IDR & (0x1 << 14)));
@@ -93,8 +96,10 @@ int main(void)
   HAL_Init();
   SystemClock_Config();
 
+  // init usr led
   init_usr_led();
 
+  // init uart
   init_uart();
   transmit_string("RESET\r\n");
 
@@ -103,31 +108,38 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM3_Init();
 
+  // setup timers
   TIM2->CNT = 0x7FFF;
   TIM3->CNT = 0x7FFF;
 
   TIM2->CR1 |= TIM_CR1_CEN;
   TIM3->CR1 |= TIM_CR1_CEN;
 
+  // read who am i register
   transmit_string("Starting IMU_init\r\n");
   who_am = imu_init();
   transmit_char(who_am);
   transmit_string("\r\n");
 
+  // wait for button
   wait_for_button();
 
+  // init motors
   transmit_string("Starting motors\r\n");
   init_motors();
   enable_motors();
 
+  // init pid
   transmit_string("Starting pid\r\n");
   init_pid();
 
   char pbuf[100];
   while (1)
   {
+    // blink green led
     GPIOC->ODR ^= (0x1 << 15);
 
+    // not used: command parsing from uart
     char* command = get_command();
 
     if (string_compare(command, "f")) {
@@ -141,6 +153,7 @@ int main(void)
     }
 
 
+    // debugging information
     sprintf(pbuf, "\tangle: %f", angle);
     transmit_string(pbuf);
 

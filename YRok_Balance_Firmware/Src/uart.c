@@ -10,6 +10,7 @@ void transmit_char(char c) {
 }
 
 void transmit_string(char *s) {
+  // transmit char one by one
   while (*s != 0) {
     transmit_char(*s);
     s++;
@@ -32,13 +33,20 @@ void transmit_hex(uint32_t hex) {
   }
 }
 
+// idx to read into
 int idx = 0;
+// buffer to read into
 char buffer[BUFFER_SIZE];
+// copy of buffer that is used for command parsing
 char command[BUFFER_SIZE];
+// flag saying buffer is ready to be read from
 volatile int uart_data = 0;
 
 void USART3_4_IRQHandler(void) {
+  // writes into buffer
   buffer[idx] = USART4->RDR;
+
+  // handle end of command
   if (buffer[idx] == '\n' || buffer[idx] == '\r') {
     buffer[idx+1] = '\0';
     idx = 0;
@@ -50,6 +58,7 @@ void USART3_4_IRQHandler(void) {
 
 
 int string_compare(char* c1, char* c2) {
+  // compare strings up to null terminator
   for (int i = 0; i < BUFFER_SIZE; i++) {
     if (c1[i] == '\0' && c2[i] == '\0') {
       return 1;
@@ -66,9 +75,11 @@ int string_compare(char* c1, char* c2) {
 
 
 char* get_command(void) {
+  // wait for data
   while (!uart_data) {
   }
 
+  // copy from buffer into command
   for (int i = 0; i < BUFFER_SIZE; i++) {
     if (buffer[i] == '\0') {
       command[i] = '\0';
@@ -77,6 +88,7 @@ char* get_command(void) {
     command[i] = buffer[i];
   }
 
+  // reset the flag
   uart_data = 0;
   return command;
 }
