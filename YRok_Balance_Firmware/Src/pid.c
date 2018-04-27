@@ -10,6 +10,7 @@
 volatile int32_t gyro_y_offset = 0xFFFFFDC3;
 volatile int32_t gyro_z_offset = 0xFFFFFF9A;
 
+// PID angle control variables
 volatile double angle = -1;
 double angle_offset = 0;
 volatile double target_angle = 0;    // target angle
@@ -21,6 +22,7 @@ volatile double Kd = -20;            // derivative gain
 int32_t clamp = 3200;
 volatile int d_filtered = 0;
 
+// PID velocity control variables
 volatile double Kp2 = 5;
 volatile double Ki2 = 0.01;
 //volatile double Kd2 = 0;
@@ -31,11 +33,13 @@ volatile double clamp2 = 1;
 volatile double out_clamp2 = 5;
 volatile int en_pos = 0;
 
+// P orientation control variables
 volatile double orientation = 0;
 volatile double target_orientation = 0;
 volatile double Kp_o = 15;
 volatile int o_clamp = 35; 
 
+// Average the gyro values over a second for calibration
 void calibrate_gyro() {
   int gyro_y_sum = 0;
   int gyro_z_sum = 0;
@@ -61,6 +65,7 @@ void calibrate_gyro() {
   transmit_string("\r\n");
 }
 
+// Initialize pid loops, mainly starts timer interrupt
 void init_pid() {
   if(gyro_y_offset == -1 || gyro_z_offset == -1) {
   	calibrate_gyro();
@@ -81,18 +86,12 @@ void init_pid() {
   TIM6->CR1 |= TIM_CR1_CEN;
 }
 
-int PI_update(int32_t accel_x, int32_t gyro_y) {
+// Update function for angle control
+int PID_update(int32_t accel_x, int32_t gyro_y) {
   gyro_y -= gyro_y_offset;
   gyro_y *= -1;
 
-  //transmit_hex(accel_x);
-  //transmit_char('\t');
-  //transmit_hex(gyro_y);
-  //transmit_char('\t');
   angle = ((0.98) * (angle + (((gyro_y / 131.0) / 100.0))) + (0.02 * (accel_x / 182.0)));
-  //transmit_hex(angle);
-  //transmit_char('\r');
-  //transmit_char('\n');
 
   error = target_angle - (int32_t) (angle - angle_offset);
 
@@ -126,6 +125,7 @@ int PI_update(int32_t accel_x, int32_t gyro_y) {
   return output;
 }
 
+// Update function for velocity control
 void PI_update2() {
   int32_t d_dist = TIM2->CNT - 0x7FFF;
   TIM2->CNT = 0x7FFF;
@@ -154,6 +154,7 @@ void PI_update2() {
   target_angle = output;
 }
 
+// Update function for orientation control
 int orientation_update(int32_t gyro_z) {
 	gyro_z -= gyro_z_offset;
 	orientation = orientation + gyro_z * (0.004375) / 250.0;
@@ -173,17 +174,18 @@ int orientation_update(int32_t gyro_z) {
 }
 
 void TIM6_DAC_IRQHandler(void) {
-  GPIOB->ODR |= (1 << 9); // For profiling
+  // For profiling, hook PB9 to scope to time interrupt length
+  GPIOB->ODR |= (1 << 9);
+
   int32_t accel_x = get_ax();
   int32_t gyro_y = get_gy();
   int32_t gyro_z = get_gz();
 
   int turn = orientation_update(gyro_z);
-  //turn *= 5;
 
   PI_update2();
 
-  int32_t pwm_l = -PI_update(accel_x, gyro_y);
+  int32_t pwm_l = -PID_update(accel_x, gyro_y);
   int32_t pwm_r = pwm_l;
 
   pwm_l -= turn;

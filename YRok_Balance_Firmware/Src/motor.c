@@ -8,8 +8,7 @@ uint32_t M2_BK = 10;
 uint32_t M1_PWM = 14;
 uint32_t M2_PWM = 15;
 
-// TODO try Timer 2 with PA0 - Ch1 and PA1 - Ch2
-
+// Set up gpio and timers for motors.
 void init_motors()
 {
   RCC->AHBENR |= RCC_AHBENR_GPIOAEN | RCC_AHBENR_GPIOBEN;
@@ -65,16 +64,19 @@ void init_motors()
 //  TIM3->CR1 |= TIM_CR1_CEN;
 }
 
+// Enable the standby pin on the h-bridge.
 void enable_motors()
 {
   GPIOB->ODR |= (0x1 << STBY);
 }
 
+// Disable the standby pin on the h-bridge.
 void disable_motors()
 {
   GPIOB->ODR &= ~(0x1 << STBY);
 }
 
+// Set the direction of the motor
 void set_dir(int32_t motor, int32_t dir)
 {
   uint32_t fw_pin = M1_FW;
@@ -102,6 +104,7 @@ void set_dir(int32_t motor, int32_t dir)
   }
 }
 
+// Set the speed of the motor
 void set_speed(int32_t motor, int32_t speed)
 {
   if(speed > 0) {
